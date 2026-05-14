@@ -19,6 +19,9 @@ class PlayerController(
         private val logger = LoggerFactory.getLogger(PlayerController::class.java)
     }
 
+    // todo dmg / round (mode)
+    //  dmg / round (overall)
+    //  move kd by mode calculation to aggregator
     @GetMapping
     fun listPlayers(@RequestParam(required = false) filter: String?, model: Model): String {
         val players = if (filter.isNullOrBlank()) {
@@ -32,9 +35,16 @@ class PlayerController(
         return "players"
     }
 
+    // todo performance of this call with 30 matches takes around a second
+    //  could lead to performance issues with more users
+    //  caching on aggregation service desirable
+
+    // todo replace with ObjectId
     @GetMapping("/{accountId}")
     fun playerDetail(@PathVariable accountId: String, model: Model): String {
-        if (accountId.isBlank()) return "players"
+        if (accountId.isBlank()) {
+            return "players"
+        }
         playerStatsViewService.populateModelByAccountId(accountId, model)
         return "player-detail"
     }

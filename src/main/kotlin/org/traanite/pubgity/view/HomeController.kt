@@ -18,9 +18,11 @@ class HomeController(
     @GetMapping("/")
     fun home(auth: Authentication?, model: Model): String {
         val isLoggedIn = auth != null && auth.isAuthenticated && auth !is AnonymousAuthenticationToken
-        if (!isLoggedIn) return "home"
+        if (!isLoggedIn) {
+            return "home"
+        }
 
-        val appUser = appUserService.findByAuth(auth!!) ?: return "home"
+        val appUser = appUserService.findByAuth(auth) ?: return "home"
         val linkedPlayerId = appUser.linkedPlayerId
 
         if (linkedPlayerId == null) {
