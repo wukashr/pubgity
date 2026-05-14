@@ -12,21 +12,7 @@ import org.traanite.pubgity.view.aggregation.MatchStatsAggregationService
 import org.traanite.pubgity.view.aggregation.PlayerStatsAggregationService
 import java.time.Instant
 
-data class PlayerMatchView(
-    val matchId: String,
-    val createdAt: Instant,
-    val gameMode: String,
-    val mapName: String,
-    val duration: Int,
-    val botCount: Int = 0,
-    val playerCount: Int,
-    val placeTaken: Int
-)
 
-/**
- * Application service responsible for assembling the player statistics view model.
- * Shared between [PlayerController] and [HomeController] to avoid duplication.
- */
 @Service
 class PlayerStatsViewService(
     private val matchService: MatchService,
@@ -38,21 +24,12 @@ class PlayerStatsViewService(
         private val logger = LoggerFactory.getLogger(PlayerStatsViewService::class.java)
     }
 
-    /**
-     * Resolves a player by [accountId] and populates [model] with all statistics
-     * needed to render the player-detail family of views.
-     *
-     * @throws ResponseStatusException 404 when the player is not found.
-     */
     fun populateModelByAccountId(accountId: String, model: Model) {
         val player = playerService.findByAccountId(accountId)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found")
         populateModel(player, model)
     }
 
-    /**
-     * Populates [model] using an already-resolved [Player].
-     */
     fun populateModel(player: Player, model: Model) {
         val accountId = player.accountId ?: run {
             logger.warn("Player '{}' has no accountId, cannot populate stats model", player.playerName)
@@ -118,4 +95,13 @@ class PlayerStatsViewService(
     }
 }
 
-
+data class PlayerMatchView(
+    val matchId: String,
+    val createdAt: Instant,
+    val gameMode: String,
+    val mapName: String,
+    val duration: Int,
+    val botCount: Int = 0,
+    val playerCount: Int,
+    val placeTaken: Int
+)

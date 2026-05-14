@@ -39,10 +39,6 @@ class SecurityConfig(
         return http.build()
     }
 
-    /**
-     * Performs OIDC RP-initiated logout — redirects to the provider's end_session_endpoint
-     * after local session invalidation.
-     */
     private fun oidcLogoutSuccessHandler(): LogoutSuccessHandler {
         val handler = OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository)
         handler.setPostLogoutRedirectUri("{baseUrl}/")
