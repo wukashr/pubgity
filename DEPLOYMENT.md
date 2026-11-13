@@ -10,9 +10,24 @@ touched by these workflows.
 
 | Workflow | Trigger | What it does |
 |---|---|---|
-| `.github/workflows/ci.yml` | push to any branch except `main`, PRs | `./gradlew test` + `build` only |
-| `.github/workflows/release-please.yml` | push to `main` | Runs tests, then [release-please](https://github.com/googleapis/release-please-action) parses commits and maintains a release PR. Merging that PR bumps the version, tags the commit, and publishes a GitHub Release. |
-| `.github/workflows/release-published.yml` | GitHub Release **published** | Builds & pushes the Docker image to GHCR, then calls the Coolify API to point the application at the new tag and restarts it. |
+| `.github/workflows/ci.yml` | push to any branch except `main`, PRs | `./gradlew test` only |
+| `.github/workflows/release-please.yml` | push to `main` | Runs tests, then (a) builds & pushes a Docker image to GHCR tagged `sha-<short-sha>` + `edge`, and (b) runs [release-please](https://github.com/googleapis/release-please-action), which parses commits and maintains a release PR. Merging that PR bumps the version, tags the commit, and publishes a GitHub Release. |
+| `.github/workflows/release-published.yml` | GitHub Release **published** | **Promotes** the `sha-<sha>` image already built for that commit to the version tag + `latest` (no rebuild), then calls the Coolify API to point the application at the new tag and restarts it. Falls back to building from source if that image is missing. |
+
+## Image strategy: build once, promote on release
+
+Every push to `main` builds exactly one image, tagged with the commit SHA
+(`sha-<short-sha>`, immutable) and `edge` (floating "latest main", handy for
+ad-hoc/staging pulls). When a release is published, `release-published.yml`
+does **not** rebuild the image — it uses `docker buildx imagetools create` to
+copy that same image's manifest to the version tag (and `latest`). This
+guarantees the exact artifact that was tested on `main` is what gets
+deployed, and avoids paying for a redundant build at release time.
+
+If the expected `sha-<sha>` image can't be found in GHCR (e.g. pruned by a
+registry retention/cleanup policy), the workflow logs a `::warning::`
+annotation and falls back to building the image from source for that tag
+instead of failing the release outright.
 
 ## Commit message convention (Conventional Commits)
 
@@ -69,6 +84,6 @@ image.
 1. Merge PRs into `main` with Conventional Commit messages.
 2. release-please keeps a release PR up to date with the pending version bump and changelog.
 3. When ready to ship, merge the release PR → tag + GitHub Release are created automatically.
-4. `release-published.yml` builds the image, pushes it to GHCR, and updates + restarts the app on Coolify.
+4. `release-published.yml` promotes the already-built image for that commit to the version tag on GHCR, and updates + restarts the app on Coolify.
 
 No manual Coolify interaction is needed after the one-time setup above.

@@ -1,4 +1,5 @@
-# On github release published, build and push a new Docker image to GHCR and then update the application on Coolify
+# On github release published, promote the already built image to version and latest tag
+# Falls back to building from source if the pre-built image is not found in GHCR
 name: Deploy to Coolify
 
 on:
@@ -10,7 +11,7 @@ permissions:
   packages: write
 
 jobs:
-  build-and-push:
+  promote-image:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.value }}
@@ -20,12 +21,13 @@ jobs:
         with:
           ref: ${{ github.event.release.tag_name }}
 
-      - name: Resolve version
+      - name: Resolve version and commit SHA
         id: version
         env:
           TAG_NAME: ${{ github.event.release.tag_name }}
         run: |
           echo "value=${TAG_NAME#v}" >> "$GITHUB_OUTPUT"
+          echo "sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
@@ -37,7 +39,29 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and push image
+      - name: Check for pre-built commit image
+        id: check
+        run: |
+          if docker buildx imagetools inspect "ghcr.io/${{ github.repository }}:sha-${{ steps.version.outputs.sha }}" > /dev/null 2>&1; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Promote pre-built image to release tags
+        if: steps.check.outputs.found == 'true'
+        run: |
+          docker buildx imagetools create \
+            -t "ghcr.io/${{ github.repository }}:${{ steps.version.outputs.value }}" \
+            -t "ghcr.io/${{ github.repository }}:latest" \
+            "ghcr.io/${{ github.repository }}:sha-${{ steps.version.outputs.sha }}"
+
+      - name: Warn about missing pre-built image
+        if: steps.check.outputs.found == 'false'
+        run: echo "::warning::No pre-built image found for commit sha-${{ steps.version.outputs.sha }} in GHCR; building from source instead."
+
+      - name: Build and push image from source (fallback)
+        if: steps.check.outputs.found == 'false'
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -47,7 +71,7 @@ jobs:
             ghcr.io/${{ github.repository }}:latest
 
   deploy-coolify:
-    needs: build-and-push
+    needs: promote-image
     runs-on: ubuntu-latest
     steps:
       - name: Update application image tag on Coolify
@@ -62,7 +86,7 @@ jobs:
           COOLIFY_URL: ${{ secrets.COOLIFY_URL }}
           COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
           COOLIFY_APP_UUID: ${{ secrets.COOLIFY_APP_UUID }}
-          VERSION: ${{ needs.build-and-push.outputs.version }}
+          VERSION: ${{ needs.promote-image.outputs.version }}
 
       - name: Restart (redeploy) application on Coolify
         run: |

@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "org.traanite"
-version = "1.0.0"
+version = "1.0.0" // x-release-please-version
 description = "pubgity"
 
 java {
