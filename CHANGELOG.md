@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/wukashr/pubgity/compare/v1.2.0...v1.2.1) (2026-11-14)
+
+
+### Bug Fixes
+
+* change roles-claim path to keycloak client role ([9c90727](https://github.com/wukashr/pubgity/commit/9c907272edcfb70691a5d92118591e2067f5f4a5))
+
 ## [1.2.0](https://github.com/wukashr/pubgity/compare/v1.1.0...v1.2.0) (2026-11-14)
 
 
