@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/wukashr/pubgity/compare/v1.2.1...v1.2.2) (2026-11-14)
+
+
+### Bug Fixes
+
+* privacy protected players handling ([f663593](https://github.com/wukashr/pubgity/commit/f66359380f96786f3a62a03026787fb501eadebe))
+
 ## [1.2.1](https://github.com/wukashr/pubgity/compare/v1.2.0...v1.2.1) (2026-11-14)
 
 
