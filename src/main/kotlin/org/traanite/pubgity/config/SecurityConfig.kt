@@ -26,6 +26,7 @@ class SecurityConfig(
                     .requestMatchers("/admin/**").hasRole("ADMIN")
                     .requestMatchers("/profile/**").authenticated()
                     .requestMatchers("/jobs/**").hasAnyRole("ADMIN", "MODERATOR")
+                    .requestMatchers("/{accountId}/privacy-protected/**").hasAnyRole("ADMIN")
                     .anyRequest().permitAll()
             }
             .oauth2Login { login ->

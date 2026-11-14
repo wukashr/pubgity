@@ -7,7 +7,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .ts-hidden .ts-col { display: none; }
-        .truncate-cell { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .truncate-cell { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+        .truncate-cell.expanded { max-width: none; overflow: visible; white-space: normal; word-break: break-all; }
+        .copy-btn { cursor: pointer; }
         .sticky-col { box-shadow: -4px 0 8px rgba(0,0,0,0.6); }
     </style>
 </head>
@@ -97,8 +99,12 @@
                         class="hover:brightness-125 transition-all">
                         <td class="px-3 py-2 text-gray-200" th:text="${job.playerName}"></td>
                         <td class="px-3 py-2">
-                            <span class="truncate-cell block text-gray-400 font-mono"
-                                  th:text="${job.matchId}" th:title="${job.matchId}"></span>
+                            <div class="flex items-center gap-1.5 max-w-[220px]">
+                                <span class="truncate-cell text-gray-400 font-mono" onclick="toggleTruncate(this)"
+                                      th:text="${job.matchId}" th:title="${job.matchId}"></span>
+                                <button type="button" class="copy-btn text-gray-500 hover:text-gray-200 shrink-0"
+                                        th:attr="data-copy=${job.matchId}" onclick="copyValue(this)" title="Copy">⧉</button>
+                            </div>
                         </td>
                         <td class="px-3 py-2">
                             <span class="px-2 py-0.5 rounded-full text-xs font-semibold"
@@ -115,8 +121,13 @@
                         <td class="px-3 py-2 text-gray-500 ts-col" th:text="${job.startedAt}"></td>
                         <td class="px-3 py-2 text-gray-500 ts-col" th:text="${job.completedAt}"></td>
                         <td class="px-3 py-2">
-                            <span class="truncate-cell block text-red-400"
-                                  th:text="${job.errorMessage}" th:title="${job.errorMessage}"></span>
+                            <div class="flex items-center gap-1.5 max-w-[220px]">
+                                <span class="truncate-cell text-red-400" onclick="toggleTruncate(this)"
+                                      th:text="${job.errorMessage}" th:title="${job.errorMessage}"></span>
+                                <button type="button" th:if="${job.errorMessage != null}"
+                                        class="copy-btn text-gray-500 hover:text-gray-200 shrink-0"
+                                        th:attr="data-copy=${job.errorMessage}" onclick="copyValue(this)" title="Copy">⧉</button>
+                            </div>
                         </td>
                         <td class="px-3 py-2 sticky right-0 bg-gray-900 sticky-col">
                             <div class="flex gap-1 flex-nowrap">
@@ -219,8 +230,13 @@
                         <td class="px-3 py-2 text-gray-500 ts-col" th:text="${job.startedAt}"></td>
                         <td class="px-3 py-2 text-gray-500 ts-col" th:text="${job.completedAt}"></td>
                         <td class="px-3 py-2">
-                            <span class="truncate-cell block text-red-400"
-                                  th:text="${job.errorMessage}" th:title="${job.errorMessage}"></span>
+                            <div class="flex items-center gap-1.5 max-w-[220px]">
+                                <span class="truncate-cell text-red-400" onclick="toggleTruncate(this)"
+                                      th:text="${job.errorMessage}" th:title="${job.errorMessage}"></span>
+                                <button type="button" th:if="${job.errorMessage != null}"
+                                        class="copy-btn text-gray-500 hover:text-gray-200 shrink-0"
+                                        th:attr="data-copy=${job.errorMessage}" onclick="copyValue(this)" title="Copy">⧉</button>
+                            </div>
                         </td>
                         <td class="px-3 py-2 sticky right-0 bg-gray-900 sticky-col">
                             <form th:if="${job.status.name() == 'QUEUED' || job.status.name() == 'RUNNING'}"
@@ -363,6 +379,43 @@
             if (cb) cb.checked = show;
         });
     });
+
+    function toggleTruncate(el) {
+        el.classList.toggle('expanded');
+    }
+
+    function copyValue(btn) {
+        const value = btn.getAttribute('data-copy');
+        if (!value) return;
+
+        const flash = () => {
+            const original = btn.textContent;
+            btn.textContent = '✓';
+            setTimeout(() => { btn.textContent = original; }, 1000);
+        };
+
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(value).then(flash).catch(() => fallbackCopy(value, flash));
+        } else {
+            fallbackCopy(value, flash);
+        }
+    }
+
+    function fallbackCopy(value, onDone) {
+        const ta = document.createElement('textarea');
+        ta.value = value;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        try {
+            document.execCommand('copy');
+            onDone();
+        } finally {
+            document.body.removeChild(ta);
+        }
+    }
 </script>
 </body>
 </html>

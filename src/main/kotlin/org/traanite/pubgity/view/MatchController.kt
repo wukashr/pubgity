@@ -46,9 +46,10 @@ class MatchController(
         val participantsWithMode = match.rosters.flatMap { roster ->
                 roster.participants.map { p -> Pair(roster, p) }
             }
-            .filter { it.second.lifetimeStatsSnapshot != null }
             .map { (roster, p) ->
-                val agg = matchStatsAggregationService.aggregateParticipantStats(p.lifetimeStatsSnapshot!!, match.gameMode)
+                val agg = p.lifetimeStatsSnapshot?.let {
+                    matchStatsAggregationService.aggregateParticipantStats(it, match.gameMode)
+                }
                 ParticipantView(
                     accountId = p.accountId,
                     playerName = p.playerName,
@@ -68,7 +69,9 @@ class MatchController(
                     top10s = agg?.totalTop10s ?: 0,
                     timeSurvived = agg?.totalTimeSurvived ?: 0.0,
                     bestRankPoint = agg?.bestRankPoint ?: 0.0,
-                    kd = agg?.modeKD ?: 0.0
+                    kd = agg?.modeKD ?: 0.0,
+                    isPrivacyProtected = p.isPrivacyProtected,
+                    hasLifetimeStats = p.lifetimeStatsSnapshot != null
                 )
             }
             .sortedByDescending { it.kills }
@@ -99,6 +102,8 @@ data class ParticipantView(
     val top10s: Int,
     val timeSurvived: Double,
     val bestRankPoint: Double,
-    val kd: Double
+    val kd: Double,
+    val isPrivacyProtected: Boolean = false,
+    val hasLifetimeStats: Boolean = true
 )
 

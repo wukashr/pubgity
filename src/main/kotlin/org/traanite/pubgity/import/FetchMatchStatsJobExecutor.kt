@@ -76,32 +76,38 @@ class FetchMatchStatsJobExecutor(
     private fun fetchLifetimeStats(jobId: ObjectId, participants: Set<SimpleParticipant>) {
         var fetched = 0
         var skipped = 0
+        var privacyProtected = 0
 
         participants.forEachIndexed { index, participant ->
             val progress =
-                "Fetching lifetime stats (${index + 1}/${participants.size}, $fetched fetched, $skipped cached)"
+                "Fetching lifetime stats (${index + 1}/${participants.size}, $fetched fetched, $skipped cached, $privacyProtected privacy protected)"
             updateProgress(jobId, progress)
 
             val updateResult = playerStatsUpdater.updateLifetimeStats(participant.accountId, participant.playerName)
             when (updateResult) {
                 StatsUpdateResult.UPDATED -> fetched++
                 StatsUpdateResult.SKIPPED -> skipped++
+                StatsUpdateResult.PRIVACY_PROTECTED -> privacyProtected++
                 StatsUpdateResult.FAILED -> throw IllegalStateException(
                     "Lifetime stats update failed for player ${participant.playerName} (${participant.accountId})"
                 )
             }
         }
 
-        logger.info("Lifetime stats: {} total, {} fetched, {} cached", participants.size, fetched, skipped)
+        logger.info(
+            "Lifetime stats: {} total, {} fetched, {} cached, {} privacy protected",
+            participants.size, fetched, skipped, privacyProtected
+        )
     }
 
     private fun fetchCurrentSeasonStats(jobId: ObjectId, participants: Set<SimpleParticipant>) {
         var fetched = 0
         var skipped = 0
+        var privacyProtected = 0
 
         participants.forEachIndexed { index, participant ->
             val progress =
-                "Fetching current season stats (${index + 1}/${participants.size}, $fetched fetched, $skipped cached)"
+                "Fetching current season stats (${index + 1}/${participants.size}, $fetched fetched, $skipped cached, $privacyProtected privacy protected)"
             updateProgress(jobId, progress)
 
             val updateResult =
@@ -109,13 +115,17 @@ class FetchMatchStatsJobExecutor(
             when (updateResult) {
                 StatsUpdateResult.UPDATED -> fetched++
                 StatsUpdateResult.SKIPPED -> skipped++
+                StatsUpdateResult.PRIVACY_PROTECTED -> privacyProtected++
                 StatsUpdateResult.FAILED -> throw IllegalStateException(
                     "Current season stats update failed for player ${participant.playerName} (${participant.accountId})"
                 )
             }
         }
 
-        logger.info("Current season stats: {} total, {} fetched, {} cached", participants.size, fetched, skipped)
+        logger.info(
+            "Current season stats: {} total, {} fetched, {} cached, {} privacy protected",
+            participants.size, fetched, skipped, privacyProtected
+        )
     }
 
     private fun saveMatchSnapshot(jobId: ObjectId, fetchedMatch: FetchedMatch) {
@@ -128,16 +138,17 @@ class FetchMatchStatsJobExecutor(
         val participantsAccountIds =
             fetchedMatch.rosters.flatMap { roster -> roster.participants.map { it.accountId } }.toSet()
 
-        val participatingPlayers = playerService.getLatestLifetimeStatsByPlayer(participantsAccountIds)
+        val participatingPlayers = playerService.getByAccountIds(participantsAccountIds)
 
         val rosterSnapshots = fetchedMatch.rosters.map { roster ->
             val participantSnapshots = roster.participants.map { participant ->
-                val latestSnapshot = participatingPlayers[participant.accountId]
+                val knownPlayer = participatingPlayers[participant.accountId]
                 MatchParticipant(
                     accountId = participant.accountId,
                     playerName = participant.playerName,
                     matchStats = participant.matchStats,
-                    lifetimeStatsSnapshot = latestSnapshot?.stats?.toParticipantLifetimeStats()
+                    lifetimeStatsSnapshot = knownPlayer?.lifetimeStats?.latestSnapshot?.stats?.toParticipantLifetimeStats(),
+                    isPrivacyProtected = knownPlayer?.isPrivacyProtected ?: false
                 )
             }
             MatchRoster(

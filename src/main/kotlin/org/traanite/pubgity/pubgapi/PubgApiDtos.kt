@@ -5,7 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 // Exceptions
 class TooManyRequestsException(message: String = "Rate limited by PUBG API") : RuntimeException(message)
-class PubgApiException(message: String) : RuntimeException(message)
+open class PubgApiException(message: String) : RuntimeException(message)
+class PubgApiNotFoundException(message: String) : PubgApiException(message)
 
 // --- Player search/lookup DTOs ---
 
@@ -20,7 +21,7 @@ data class PlayerData(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class PlayerAttributes(val name: String)
+data class PlayerAttributes(val name: String, val isPrivacyProtected: Boolean = false)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class PlayerRelationships(val matches: RelationshipData? = null)
