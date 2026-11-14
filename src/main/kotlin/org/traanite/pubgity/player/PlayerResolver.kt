@@ -23,19 +23,33 @@ class PlayerResolver(
         val accountId = playerData.id
         val matchIds = playerData.relationships?.matches?.data?.map { it.id } ?: emptyList()
         val name = playerData.attributes.name
+        val isPrivacyProtected = playerData.attributes.isPrivacyProtected
 
-        logger.info("Resolved '{}' -> accountId={}, {} matches from API", name, accountId, matchIds.size)
+        logger.info(
+            "Resolved '{}' -> accountId={}, {} matches from API, isPrivacyProtected={}",
+            name, accountId, matchIds.size, isPrivacyProtected
+        )
 
-        val resolvedPlayer = resolveOrCreatePlayer(accountId, name, playerName)
-        return ResolvedPlayer(resolvedPlayer.accountId!!, resolvedPlayer.playerName, matchIds)
+        val resolvedPlayer = resolveOrCreatePlayer(accountId, name, playerName, isPrivacyProtected)
+        return ResolvedPlayer(
+            resolvedPlayer.accountId!!,
+            resolvedPlayer.playerName,
+            matchIds,
+            resolvedPlayer.isPrivacyProtected
+        )
     }
 
-    fun resolveOrCreatePlayer(accountId: String, currentName: String, originalName: String): Player {
+    private fun resolveOrCreatePlayer(
+        accountId: String,
+        currentName: String,
+        originalName: String,
+        isPrivacyProtected: Boolean = false
+    ): Player {
         val player = playerRepository.findByAccountId(accountId)
             ?: playerRepository.findByPlayerName(originalName)
             ?: Player(playerName = currentName)
 
-        val updatedPlayer = player.updateAccountData(accountId, currentName)
+        val updatedPlayer = player.updateAccountData(accountId, currentName, isPrivacyProtected)
         playerRepository.save(updatedPlayer)
         logger.info("Resolved or created player: accountId={}, name='{}'", updatedPlayer.accountId, updatedPlayer.playerName)
         return updatedPlayer
@@ -43,5 +57,5 @@ class PlayerResolver(
 }
 
 data class ResolvedPlayer(
-    val accountId: String, val playerName: String, val matchIds: List<String>
+    val accountId: String, val playerName: String, val matchIds: List<String>, val isPrivacyProtected: Boolean = false
 )

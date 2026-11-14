@@ -3,6 +3,7 @@ package org.traanite.pubgity.player
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.traanite.pubgity.pubgapi.PubgApiClient
+import org.traanite.pubgity.pubgapi.PubgApiNotFoundException
 import org.traanite.pubgity.pubgapi.toLifetimeStats
 import java.time.Duration
 import java.time.Instant
@@ -11,7 +12,8 @@ import java.time.Instant
 class PlayerStatsUpdater(
     private val pubgApiClient: PubgApiClient,
     private val playerProperties: PlayerProperties,
-    private val playerRepository: PlayerRepository
+    private val playerRepository: PlayerRepository,
+    private val playerResolver: PlayerResolver
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(PlayerStatsUpdater::class.java)
@@ -20,6 +22,14 @@ class PlayerStatsUpdater(
     fun updateLifetimeStats(accountId: String, playerName: String): StatsUpdateResult {
         val player =
             playerRepository.findByAccountId(accountId) ?: Player(accountId = accountId, playerName = playerName)
+
+        if (player.isPrivacyProtected) {
+            logger.debug(
+                "Skipping lifetime stats update for '{}' - player is privacy protected",
+                player.playerName
+            )
+            return StatsUpdateResult.PRIVACY_PROTECTED
+        }
 
         logger.info("Updating lifetime stats for player '{}'", player.playerName)
         val latestSnapshot = player.lifetimeStats.latestSnapshot
@@ -40,6 +50,8 @@ class PlayerStatsUpdater(
                 logger.info("Lifetime stats updated: {}", it.accountId)
             }
             return StatsUpdateResult.UPDATED
+        } catch (e: PubgApiNotFoundException) {
+            return resolveNotFoundFallback(accountId, playerName, e)
         } catch (e: Exception) {
             logger.warn("Failed to fetch lifetime stats for {}: {}", accountId, e.message)
             return StatsUpdateResult.FAILED
@@ -49,6 +61,14 @@ class PlayerStatsUpdater(
     fun updateCurrentSeasonPlayerStats(accountId: String, playerName: String): StatsUpdateResult {
         val player =
             playerRepository.findByAccountId(accountId) ?: Player(accountId = accountId, playerName = playerName)
+
+        if (player.isPrivacyProtected) {
+            logger.debug(
+                "Skipping season stats update for '{}' - player is privacy protected",
+                player.playerName
+            )
+            return StatsUpdateResult.PRIVACY_PROTECTED
+        }
 
         try {
             val currentSeason = pubgApiClient.getCurrentSeason()
@@ -71,10 +91,26 @@ class PlayerStatsUpdater(
                 logger.info("Season stats updated: {}", it.accountId)
             }
             return StatsUpdateResult.UPDATED
+        } catch (e: PubgApiNotFoundException) {
+            return resolveNotFoundFallback(accountId, playerName, e)
         } catch (e: Exception) {
             logger.warn("Failed to fetch season stats for {}: {}", accountId, e.message)
             return StatsUpdateResult.FAILED
         }
+    }
+
+    private fun resolveNotFoundFallback(
+        accountId: String,
+        playerName: String,
+        cause: PubgApiNotFoundException
+    ): StatsUpdateResult {
+        logger.info("Stats fetch 404 for accountId={}, resolving player to check privacy status", accountId)
+        val resolved = playerResolver.resolve(accountId, playerName)
+        if (resolved.isPrivacyProtected) {
+            logger.debug("Confirmed '{}' is privacy protected after resolving on 404", resolved.playerName)
+            return StatsUpdateResult.PRIVACY_PROTECTED
+        }
+        throw cause
     }
 
     // todo split these ttl in properties
@@ -84,5 +120,5 @@ class PlayerStatsUpdater(
 }
 
 enum class StatsUpdateResult {
-    UPDATED, SKIPPED, FAILED
+    UPDATED, SKIPPED, FAILED, PRIVACY_PROTECTED
 }

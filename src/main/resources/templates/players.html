@@ -36,7 +36,14 @@
                th:href="@{/players/{id}(id=${player.accountId})}"
                class="flex items-center justify-between px-4 py-3 bg-gray-800 hover:bg-gray-700
                   border-b border-gray-700/50 transition-colors group">
-                <span th:text="${player.playerName}" class="font-medium text-gray-100 group-hover:text-white"></span>
+                <span class="flex items-center gap-2">
+                    <span th:text="${player.playerName}" class="font-medium text-gray-100 group-hover:text-white"></span>
+                    <span th:if="${player.isPrivacyProtected}"
+                          title="This player's profile is privacy protected; lifetime/season stats are unavailable."
+                          class="text-xs px-2 py-0.5 bg-amber-900/60 text-amber-300 rounded-full">
+                        🔒 Privacy Protected
+                    </span>
+                </span>
                 <span class="text-xs px-2 py-1 bg-gray-700 group-hover:bg-gray-600 text-gray-400 rounded-full">
                 <span th:text="${#sets.size(player.matches.matchIds)}"></span> matches
             </span>

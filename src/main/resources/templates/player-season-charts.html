@@ -32,12 +32,18 @@
         </a>
     </div>
 
-    <div th:if="${#lists.isEmpty(perMatchSeasonStats)}"
+    <div th:if="${player.isPrivacyProtected}"
+         class="bg-amber-950/40 border border-amber-700/50 text-amber-300 rounded-lg px-5 py-8 text-center text-sm">
+        🔒 This player's PUBG profile is privacy protected. Season stats and charts are unavailable
+        from the PUBG API for this account.
+    </div>
+
+    <div th:if="${#lists.isEmpty(perMatchSeasonStats) and !player.isPrivacyProtected}"
          class="bg-gray-800 border border-gray-700 rounded-lg px-5 py-8 text-center text-gray-500">
         No per-match season stats available yet.
     </div>
 
-    <div th:if="${!#lists.isEmpty(perMatchSeasonStats)}" class="space-y-6">
+    <div th:if="${!#lists.isEmpty(perMatchSeasonStats) and !player.isPrivacyProtected}" class="space-y-6">
         <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="seasonKillsChart"></canvas></div>
         <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="seasonDamageChart"></canvas></div>
         <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="seasonDmgPerRoundLifetimeChart"></canvas></div>

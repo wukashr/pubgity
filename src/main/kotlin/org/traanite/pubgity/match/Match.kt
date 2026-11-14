@@ -35,7 +35,8 @@ data class MatchParticipant(
     val matchStats: MatchParticipantStats? = null,
     // todo match snapshot as a table with matchIds as one of the properties in player package?
     //  a lot of copying the same stuff here
-    val lifetimeStatsSnapshot: ParticipantLifetimeStats? = null
+    val lifetimeStatsSnapshot: ParticipantLifetimeStats? = null,
+    val isPrivacyProtected: Boolean = false
 )
 
 data class MatchParticipantStats(

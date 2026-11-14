@@ -36,7 +36,7 @@
             <span class="text-gray-400">Duration:</span> <span th:text="${match.duration}"></span>s
         </p>
         <p>
-            <span th:text="${#lists.size(participants)}"></span> participants with lifetime stats
+            <span th:text="${#lists.size(participants)}"></span> participants loaded
             &nbsp;·&nbsp;
             <span th:text="${match.botCount}"></span> bots
         </p>
@@ -94,24 +94,31 @@
                             <strong th:if="${p.accountId == player.accountId}"
                                     th:text="${p.playerName}"
                                     class="text-white"></strong>
+                            <span th:if="${p.isPrivacyProtected}"
+                                  title="This player's profile is privacy protected; lifetime/mode stats are unavailable."
+                                  class="ml-1 text-xs px-1.5 py-0.5 bg-amber-900/60 text-amber-300 rounded-full">
+                                🔒 Privacy Protected
+                            </span>
                         </td>
                         <td class="px-3 py-1.5 text-gray-300" th:text="${p.winPlace}"></td>
                         <td class="px-3 py-1.5 text-gray-300" th:text="${p.rosterWinPlace}"></td>
                         <td class="px-3 py-1.5 text-gray-300" th:text="${p.killsMatch}"></td>
                         <td class="px-3 py-1.5 text-gray-300" th:text="${p.dmgMatch}"></td>
-                        <td class="px-3 py-1.5 text-gray-300" th:text="${p.kills}"></td>
-                        <td class="px-3 py-1.5 text-gray-300" th:text="${#numbers.formatDecimal(p.damage, 1, 0)}"></td>
-                        <td class="px-3 py-1.5 text-gray-300" th:text="${#numbers.formatDecimal((p.dmgPerRoundLifetime ?: 0.0), 1, 2)}"></td>
-                        <td class="px-3 py-1.5 text-gray-300" th:text="${#numbers.formatDecimal((p.dmgPerRoundMode ?: 0.0), 1, 2)}"></td>
-                        <td class="px-3 py-1.5 text-gray-300" th:text="${#numbers.formatDecimal((p.dmgPerMinuteLifetime ?: 0.0), 1, 2)}"></td>
-                        <td class="px-3 py-1.5 text-gray-300" th:text="${#numbers.formatDecimal((p.dmgPerMinuteMode ?: 0.0), 1, 2)}"></td>
-                        <td class="px-3 py-1.5 text-gray-300" th:text="${#numbers.formatDecimal(p.kd, 1, 2)}"></td>
-                        <td class="px-3 py-1.5 text-gray-300" th:text="${p.wins}"></td>
-                        <td class="px-3 py-1.5 text-gray-300" th:text="${p.roundsPlayed}"></td>
-                        <td class="px-3 py-1.5 text-gray-300" th:text="${p.headshotKills}"></td>
-                        <td class="px-3 py-1.5 text-gray-300" th:text="${p.top10s}"></td>
-                        <td class="px-3 py-1.5 text-gray-300" th:text="${#numbers.formatDecimal(p.timeSurvived / 3600, 1, 1)} + 'h'"></td>
-                        <td class="px-3 py-1.5 text-gray-300" th:text="${#numbers.formatDecimal(p.bestRankPoint, 1, 0)}"></td>
+                        <td class="px-3 py-1.5 text-gray-500 italic" th:if="${!p.hasLifetimeStats}" colspan="13"
+                            th:text="${p.isPrivacyProtected ? 'N/A — privacy protected' : 'N/A — lifetime stats unavailable'}"></td>
+                        <td class="px-3 py-1.5 text-gray-300" th:if="${p.hasLifetimeStats}" th:text="${p.kills}"></td>
+                        <td class="px-3 py-1.5 text-gray-300" th:if="${p.hasLifetimeStats}" th:text="${#numbers.formatDecimal(p.damage, 1, 0)}"></td>
+                        <td class="px-3 py-1.5 text-gray-300" th:if="${p.hasLifetimeStats}" th:text="${#numbers.formatDecimal((p.dmgPerRoundLifetime ?: 0.0), 1, 2)}"></td>
+                        <td class="px-3 py-1.5 text-gray-300" th:if="${p.hasLifetimeStats}" th:text="${#numbers.formatDecimal((p.dmgPerRoundMode ?: 0.0), 1, 2)}"></td>
+                        <td class="px-3 py-1.5 text-gray-300" th:if="${p.hasLifetimeStats}" th:text="${#numbers.formatDecimal((p.dmgPerMinuteLifetime ?: 0.0), 1, 2)}"></td>
+                        <td class="px-3 py-1.5 text-gray-300" th:if="${p.hasLifetimeStats}" th:text="${#numbers.formatDecimal((p.dmgPerMinuteMode ?: 0.0), 1, 2)}"></td>
+                        <td class="px-3 py-1.5 text-gray-300" th:if="${p.hasLifetimeStats}" th:text="${#numbers.formatDecimal(p.kd, 1, 2)}"></td>
+                        <td class="px-3 py-1.5 text-gray-300" th:if="${p.hasLifetimeStats}" th:text="${p.wins}"></td>
+                        <td class="px-3 py-1.5 text-gray-300" th:if="${p.hasLifetimeStats}" th:text="${p.roundsPlayed}"></td>
+                        <td class="px-3 py-1.5 text-gray-300" th:if="${p.hasLifetimeStats}" th:text="${p.headshotKills}"></td>
+                        <td class="px-3 py-1.5 text-gray-300" th:if="${p.hasLifetimeStats}" th:text="${p.top10s}"></td>
+                        <td class="px-3 py-1.5 text-gray-300" th:if="${p.hasLifetimeStats}" th:text="${#numbers.formatDecimal(p.timeSurvived / 3600, 1, 1)} + 'h'"></td>
+                        <td class="px-3 py-1.5 text-gray-300" th:if="${p.hasLifetimeStats}" th:text="${#numbers.formatDecimal(p.bestRankPoint, 1, 0)}"></td>
                     </tr>
                     </tbody>
                 </table>

@@ -79,6 +79,9 @@ class PubgApiClient(
                         logger.warn("Rate limit exceeded when fetching lifetime stats by accountId: $accountId")
                         throw TooManyRequestsException()
                     }
+                    if (response.statusCode == HttpStatus.NOT_FOUND) {
+                        throw PubgApiNotFoundException("Lifetime stats not found for accountId: $accountId")
+                    }
 
                     throw PubgApiException("Lifetime stats failed: ${response.statusCode}")
                 }.body<LifetimeStatsResponse>()!!
@@ -140,6 +143,9 @@ class PubgApiClient(
                             seasonId
                         )
                         throw TooManyRequestsException()
+                    }
+                    if (response.statusCode == HttpStatus.NOT_FOUND) {
+                        throw PubgApiNotFoundException("Season stats not found for accountId: $accountId seasonId: $seasonId")
                     }
                     throw PubgApiException("Season stats fetch failed: ${response.statusCode}")
                 }.body<PlayerSeasonResponse>()!!

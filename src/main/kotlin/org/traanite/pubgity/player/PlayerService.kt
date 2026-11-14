@@ -38,6 +38,11 @@ class PlayerService(
             }
     }
 
+    fun getByAccountIds(accountIds: Set<String>): Map<String, Player> {
+        return playerRepository.findByAccountIdIn(accountIds)
+            .associateBy { it.accountId!! }
+    }
+
     fun addPlayer(playerName: String): Player? {
         val trimmed = playerName.trim()
         if (trimmed.isBlank() || playerRepository.findByPlayerName(trimmed) != null) {
@@ -61,5 +66,12 @@ class PlayerService(
             playerRepository.save(updatedPlayer)
             logger.info("Appended match refs: {}", updatedPlayer)
         }
+    }
+
+    fun setPrivacyProtected(accountId: String, isPrivacyProtected: Boolean): Player? {
+        val player = playerRepository.findByAccountId(accountId) ?: return null
+        val updatedPlayer = playerRepository.save(player.withPrivacyProtected(isPrivacyProtected))
+        logger.info("Set isPrivacyProtected={} for player accountId={}", isPrivacyProtected, accountId)
+        return updatedPlayer
     }
 }

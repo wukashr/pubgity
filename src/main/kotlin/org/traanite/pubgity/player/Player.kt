@@ -17,16 +17,18 @@ class Player(
     val matches: PlayerMatches = PlayerMatches(),
     val seasonStats: PlayerSeasonStats = PlayerSeasonStats(),
     val lifetimeStats: PlayerLifetimeStats = PlayerLifetimeStats(),
+    val isPrivacyProtected: Boolean = false,
 ) {
 
-    fun updateAccountData(accountId: String, playerName: String): Player {
+    fun updateAccountData(accountId: String, playerName: String, isPrivacyProtected: Boolean = this.isPrivacyProtected): Player {
         return Player(
             id = id,
             playerName = playerName,
             accountId = accountId,
             matches = matches,
             seasonStats = seasonStats,
-            lifetimeStats = lifetimeStats
+            lifetimeStats = lifetimeStats,
+            isPrivacyProtected = isPrivacyProtected,
         )
     }
 
@@ -38,6 +40,7 @@ class Player(
             matches = PlayerMatches(matches.matchIds + matchIds),
             seasonStats = seasonStats,
             lifetimeStats = lifetimeStats,
+            isPrivacyProtected = isPrivacyProtected,
         )
     }
 
@@ -51,6 +54,7 @@ class Player(
             matches = PlayerMatches(matches.matchIds.filterNot { it in matchIdsToRemove }.toSet()),
             seasonStats = seasonStats,
             lifetimeStats = lifetimeStats,
+            isPrivacyProtected = isPrivacyProtected,
         )
     }
 
@@ -65,7 +69,8 @@ class Player(
             lifetimeStats = PlayerLifetimeStats(
                 latestSnapshot = newSnapshot,
                 snapshots = this.lifetimeStats.snapshots + newSnapshot
-            )
+            ),
+            isPrivacyProtected = isPrivacyProtected,
         )
     }
 
@@ -76,7 +81,20 @@ class Player(
             accountId = accountId,
             matches = matches,
             seasonStats = PlayerSeasonStats(stats = this.seasonStats.stats + (seasonStats.seasonId to seasonStats)),
-            lifetimeStats = lifetimeStats
+            lifetimeStats = lifetimeStats,
+            isPrivacyProtected = isPrivacyProtected,
+        )
+    }
+
+    fun withPrivacyProtected(isPrivacyProtected: Boolean): Player {
+        return Player(
+            id = id,
+            playerName = playerName,
+            accountId = accountId,
+            matches = matches,
+            seasonStats = seasonStats,
+            lifetimeStats = lifetimeStats,
+            isPrivacyProtected = isPrivacyProtected,
         )
     }
 
