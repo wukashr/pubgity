@@ -38,7 +38,10 @@ Open **http://localhost:8090** and log in with:
 | Username | `admin` |
 | Password | `admin` |
 
-Go to **Realm selector (top-left) → pubgity**. You should see the realm with **3 roles** (ADMIN, MODERATOR, USER) and **5 pre-seeded users**.
+Go to **Realm selector (top-left) → pubgity**. You should see the realm with **3 roles**
+(`PUBGITY_ADMIN`, `PUBGITY_MODERATOR`, `PUBGITY_USER` — namespaced per Pubgity's
+[role naming convention](OIDC_SETUP.md#step-3b--role-naming-convention-shared-realm))
+and **5 pre-seeded users**.
 
 > The realm is imported automatically from `keycloak/pubgity-realm.json` on first startup.
 > On subsequent restarts the import is silently skipped (realm already exists).
@@ -72,13 +75,13 @@ Open **http://localhost:8080** — click **Sign in** to be redirected to Keycloa
 
 ## Pre-seeded users
 
-| Username        | Password     | Role      |
-|-----------------|--------------|-----------|
-| `pubgity_admin` | `Admin1234!` | ADMIN     |
-| `mod_alpha`     | `Mod1234!`   | MODERATOR |
-| `mod_beta`      | `Mod1234!`   | MODERATOR |
-| `player_one`    | `User1234!`  | USER      |
-| `player_two`    | `User1234!`  | USER      |
+| Username        | Password     | Role                |
+|-----------------|--------------|---------------------|
+| `pubgity_admin` | `Admin1234!` | `PUBGITY_ADMIN`     |
+| `mod_alpha`     | `Mod1234!`   | `PUBGITY_MODERATOR` |
+| `mod_beta`      | `Mod1234!`   | `PUBGITY_MODERATOR` |
+| `player_one`    | `User1234!`  | `PUBGITY_USER`      |
+| `player_two`    | `User1234!`  | `PUBGITY_USER`      |
 
 Login as `pubgity_admin` to access the Admin panel at **http://localhost:8080/admin/users**.
 
@@ -86,13 +89,15 @@ Login as `pubgity_admin` to access the Admin panel at **http://localhost:8080/ad
 
 ## Role management
 
-Roles are defined as **Keycloak realm roles** (`ADMIN`, `MODERATOR`, `USER`) and synced into
-Pubgity on every login. To change a user's role:
+Roles are defined as **Keycloak realm roles** (`PUBGITY_ADMIN`, `PUBGITY_MODERATOR`,
+`PUBGITY_USER`) and synced into Pubgity on every login — Pubgity strips the `PUBGITY_`
+prefix (configurable via `pubgity.oidc.role-prefix`) and maps the rest to its internal
+`ADMIN` / `MODERATOR` / `USER` roles. To change a user's role:
 
 1. Open **http://localhost:8090** → log in as `admin`
 2. Select the **pubgity** realm
 3. Go to **Users** → click the user → **Role mapping** tab
-4. Assign or remove the `ADMIN` / `MODERATOR` / `USER` realm role
+4. Assign or remove the `PUBGITY_ADMIN` / `PUBGITY_MODERATOR` / `PUBGITY_USER` realm role
 5. The user's role in Pubgity updates on their **next login**
 
 > The Pubgity Admin panel (`/admin/users`) manages **moderator constraints only**

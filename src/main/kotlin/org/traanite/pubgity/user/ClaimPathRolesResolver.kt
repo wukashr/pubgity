@@ -16,13 +16,14 @@ import org.springframework.stereotype.Component
 @Component
 //@ConditionalOnMissingBean(OidcRolesResolver::class)
 class ClaimPathRolesResolver(
-    @Value("\${pubgity.oidc.roles-claim}") private val rolesClaimPath: String
+    @Value("\${pubgity.oidc.roles-claim}") private val rolesClaimPath: String,
+    @Value("\${pubgity.oidc.role-prefix:}") private val rolePrefix: String
 ) : OidcRolesResolver {
 
     override fun resolve(claims: Map<String, Any>): Set<AppRole> {
         val segments = rolesClaimPath.split(".")
         val roleStrings = navigate(claims, segments)
-        val known = AppRole.entries.associateBy { it.name }
+        val known = AppRole.entries.associateBy { "$rolePrefix${it.name}" }
         val resolved = roleStrings.mapNotNull { known[it] }.toSet()
         return resolved.ifEmpty { setOf(AppRole.USER) }
     }

@@ -23,6 +23,7 @@ spring:
 pubgity:
   oidc:
     roles-claim: realm_access.roles
+    role-prefix: ${PUBGITY_OIDC_ROLE_PREFIX:PUBGITY_}
 pubg:
   api:
     key: pubgApiKey
