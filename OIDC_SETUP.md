@@ -4,6 +4,13 @@ Pubgity delegates authentication to any **OpenID Connect**-compliant identity pr
 Roles (`ADMIN`, `MODERATOR`, `USER`) are sourced from a configurable claim in the ID token
 and synced into Pubgity's local user store on every login.
 
+> **Role naming convention:** since a single realm/provider may be shared across
+> multiple apps, role names in the identity provider should be namespaced with an
+> app-specific prefix — Pubgity's is `PUBGITY_` (e.g. `PUBGITY_ADMIN`). The prefix
+> is stripped at the OIDC boundary via `pubgity.oidc.role-prefix` (default `PUBGITY_`),
+> so the rest of the application only ever deals with the generic `ADMIN`, `MODERATOR`,
+> `USER` names.
+
 > **For local development** see [LOCAL_DEV.md](LOCAL_DEV.md) — a pre-configured Keycloak
 > realm with 5 seed users is imported automatically.
 
@@ -11,14 +18,16 @@ and synced into Pubgity's local user store on every login.
 
 ## How roles work
 
-| Role        | Access                                                              |
-|-------------|---------------------------------------------------------------------|
-| `ADMIN`     | Full access — admin panel, all jobs, all players                    |
-| `MODERATOR` | Jobs page scoped to assigned players, subject to queue size limit   |
-| `USER`      | Public pages + personal home/profile                                |
+| Role        | Access                                                              | Expected claim value |
+|-------------|---------------------------------------------------------------------|-----------------------|
+| `ADMIN`     | Full access — admin panel, all jobs, all players                    | `PUBGITY_ADMIN`      |
+| `MODERATOR` | Jobs page scoped to assigned players, subject to queue size limit   | `PUBGITY_MODERATOR`  |
+| `USER`      | Public pages + personal home/profile                                | `PUBGITY_USER`       |
 
 - Roles are read from the ID token claim configured via `pubgity.oidc.roles-claim`
   (default: `realm_access.roles`).
+- The prefix in the expected claim value is configured via `pubgity.oidc.role-prefix`
+  (default: `PUBGITY_`); it only needs to change if you pick a different convention.
 - Pubgity syncs the local `AppUser` roles on every login.
 - Role changes take effect on the user's **next login**.
 - Moderator constraints (allowed players, max queue size) are configured in Pubgity's
@@ -51,7 +60,7 @@ Pubgity requires the following claims to be present:
 | `sub`                   | Stable unique user identifier — must never change for a given user    |
 | `email`                 | Synced to Pubgity on every login                                      |
 | `preferred_username`    | Display name (falls back to `name`, `email`, then `sub`)             |
-| Roles claim (see below) | List of role name strings that map to `ADMIN`, `MODERATOR`, `USER`   |
+| Roles claim (see below) | List of role name strings that map (after prefix-stripping) to `ADMIN`, `MODERATOR`, `USER` |
 | `end_session_endpoint`  | Required for RP-initiated logout (must be in the provider's discovery document) |
 
 ### Step 3 — Configure the roles claim
@@ -71,10 +80,27 @@ Set `pubgity.oidc.roles-claim` to the dot-separated path of the claim in your ID
 pubgity:
   oidc:
     roles-claim: roles   # flat top-level claim
+    role-prefix: PUBGITY_   # stripped before matching against ADMIN/MODERATOR/USER
 ```
 
 If your provider uses a custom namespace (e.g. Auth0 namespace URIs), configure
 the exact claim key that contains the role string list.
+
+### Step 3b — Role naming convention (shared realm)
+
+If your identity provider's realm is shared across multiple applications, namespace
+each app's roles so they don't collide (e.g. another app might also want an `ADMIN`
+role). Pubgity's convention is `<APPNAME>_<ROLE>`:
+
+- `PUBGITY_ADMIN`
+- `PUBGITY_MODERATOR`
+- `PUBGITY_USER`
+
+Pubgity strips the configured `pubgity.oidc.role-prefix` (default `PUBGITY_`) before
+matching against its internal `AppRole` enum, so application code never needs to know
+about the prefix. If you don't share the realm with other apps, you can set
+`pubgity.oidc.role-prefix` to an empty string and use bare `ADMIN`/`MODERATOR`/`USER`
+role names instead.
 
 If no recognised role is found for a user they default to `USER`.
 
@@ -118,10 +144,11 @@ Pubgity uses Spring Security's OIDC auto-configuration — the discovery documen
 ### Step 2 — Create realm roles
 
 1. Go to **Realm roles → Create role**.
-2. Create three roles (names must match exactly):
-   - `ADMIN`
-   - `MODERATOR`
-   - `USER`
+2. Create three roles, prefixed per the [role naming convention](#step-3b--role-naming-convention-shared-realm)
+   (names must match exactly — adjust the prefix if you changed `pubgity.oidc.role-prefix`):
+   - `PUBGITY_ADMIN`
+   - `PUBGITY_MODERATOR`
+   - `PUBGITY_USER`
 
 ### Step 3 — Create a Client
 
@@ -167,7 +194,7 @@ This mapper injects realm roles into the ID token so Pubgity can read them.
 
 1. Go to **Users** → click a user → **Role mapping** tab.
 2. Click **Assign role** → filter by **realm roles**.
-3. Select `ADMIN`, `MODERATOR`, or `USER` as appropriate.
+3. Select `PUBGITY_ADMIN`, `PUBGITY_MODERATOR`, or `PUBGITY_USER` as appropriate.
 
 ### Step 6 — Set environment variables
 

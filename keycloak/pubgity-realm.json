@@ -14,15 +14,15 @@
   "roles": {
     "realm": [
       {
-        "name": "ADMIN",
+        "name": "PUBGITY_ADMIN",
         "description": "Full access — user management, all jobs, all players"
       },
       {
-        "name": "MODERATOR",
+        "name": "PUBGITY_MODERATOR",
         "description": "Jobs page scoped to assigned players, subject to queue size limit"
       },
       {
-        "name": "USER",
+        "name": "PUBGITY_USER",
         "description": "Public pages plus personal home and profile"
       }
     ]
@@ -81,7 +81,7 @@
       "credentials": [
         { "type": "password", "value": "Admin1234!", "temporary": false }
       ],
-      "realmRoles": ["ADMIN"],
+      "realmRoles": ["PUBGITY_ADMIN"],
       "clientRoles": {
         "account": ["manage-account", "manage-account-links", "view-profile"]
       }
@@ -97,7 +97,7 @@
       "credentials": [
         { "type": "password", "value": "Mod1234!", "temporary": false }
       ],
-      "realmRoles": ["MODERATOR"],
+      "realmRoles": ["PUBGITY_MODERATOR"],
       "clientRoles": {
         "account": ["manage-account", "manage-account-links", "view-profile"]
       }
@@ -113,7 +113,7 @@
       "credentials": [
         { "type": "password", "value": "Mod1234!", "temporary": false }
       ],
-      "realmRoles": ["MODERATOR"],
+      "realmRoles": ["PUBGITY_MODERATOR"],
       "clientRoles": {
         "account": ["manage-account", "manage-account-links", "view-profile"]
       }
@@ -129,7 +129,7 @@
       "credentials": [
         { "type": "password", "value": "User1234!", "temporary": false }
       ],
-      "realmRoles": ["USER"],
+      "realmRoles": ["PUBGITY_USER"],
       "clientRoles": {
         "account": ["manage-account", "manage-account-links", "view-profile"]
       }
@@ -145,7 +145,7 @@
       "credentials": [
         { "type": "password", "value": "User1234!", "temporary": false }
       ],
-      "realmRoles": ["USER"],
+      "realmRoles": ["PUBGITY_USER"],
       "clientRoles": {
         "account": ["manage-account", "manage-account-links", "view-profile"]
       }
