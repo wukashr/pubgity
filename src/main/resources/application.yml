@@ -22,7 +22,7 @@ spring:
         size: 5
 pubgity:
   oidc:
-    roles-claim: realm_access.roles
+    roles-claim: resource_access.pubgity.roles
     role-prefix: ${PUBGITY_OIDC_ROLE_PREFIX:PUBGITY_}
 pubg:
   api:
