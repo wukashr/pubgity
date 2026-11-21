@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/wukashr/pubgity/compare/v1.2.2...v1.3.0) (2026-11-21)
+
+
+### Features
+
+* readable labels ([385325a](https://github.com/wukashr/pubgity/commit/385325aeffbd216c3268584a969ed948f6442195))
+
 ## [1.2.2](https://github.com/wukashr/pubgity/compare/v1.2.1...v1.2.2) (2026-11-14)
 
 
