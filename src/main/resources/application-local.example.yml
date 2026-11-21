@@ -1,0 +1,23 @@
+spring:
+  mongodb:
+    uri: mongodb://user:password@localhost:27017/pubgity?authSource=admin
+  security:
+    oauth2:
+      client:
+        registration:
+          oidc:
+            client-id: pubgity
+            client-secret: dev-client-secret
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          oidc:
+            issuer-uri: http://localhost:8090/realms/pubgity
+            user-name-attribute: preferred_username
+
+pubgity:
+  oidc:
+    roles-claim: realm_access.roles
+
+pubg:
+  api:
+    key: replace-with-your-pubg-api-key

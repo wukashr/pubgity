@@ -50,16 +50,11 @@ and **5 pre-seeded users**.
 
 ## Step 3 — Configure `application-local.yml`
 
-The local profile is **pre-configured** with the dev client credentials from the realm JSON.
-Open `src/main/resources/application-local.yml` and confirm:
-
-```yaml
-client-id: "pubgity"
-client-secret: "dev-client-secret"
-issuer-uri: "http://localhost:8090/realms/pubgity"
-```
-
-No changes are needed for local development.
+Copy `src/main/resources/application-local.example.yml` to
+`src/main/resources/application-local.yml` if you don't already have a local profile.
+Set `pubg.api.key` in the local file to your PUBG API key.
+The example contains MongoDB and Keycloak settings for the local Compose services.
+Your local profile is ignored by Git.
 
 ---
 
@@ -133,4 +128,3 @@ docker compose -f docker-compose.keycloak.yml up -d
 docker compose down
 docker compose -f docker-compose.keycloak.yml down
 ```
-
