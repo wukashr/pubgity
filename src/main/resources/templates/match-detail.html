@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title th:text="'Pubgity - Match ' + ${match.matchId}">Match Detail</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script th:replace="~{fragments/timestamps :: script}"></script>
     <style>
         th.sortable { cursor: pointer; user-select: none; }
         th.sortable .sort-indicator { margin-left: 4px; font-size: 0.75em; opacity: 0.5; }
@@ -27,7 +28,9 @@
     <h1 class="text-2xl font-bold text-white mb-2">Match Detail</h1>
     <div class="text-xs text-gray-500 space-y-0.5 mb-6">
         <p><span class="text-gray-400">Match ID:</span> <span class="font-mono" th:text="${match.matchId}"></span></p>
-        <p><span class="text-gray-400">Date:</span> <span th:text="${match.createdAt}"></span></p>
+        <p><span class="text-gray-400">Date:</span>
+            <time th:replace="~{fragments/timestamps :: timestamp(${match.createdAt}, false)}"></time>
+        </p>
         <p>
             <span class="text-gray-400">Mode:</span> <span th:text="${match.gameMode}"></span>
             &nbsp;·&nbsp;

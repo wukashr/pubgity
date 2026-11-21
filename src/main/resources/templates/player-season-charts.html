@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title th:text="'Pubgity - ' + ${player.playerName} + ' · Season Charts'">Season Charts</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script th:replace="~{fragments/timestamps :: script}"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 </head>
 <body class="bg-gray-950 text-gray-100 min-h-screen">
@@ -69,6 +70,8 @@
     Chart.defaults.plugins.tooltip.bodyColor = '#cbd5e1';
     Chart.defaults.plugins.tooltip.borderColor = 'rgba(100,116,139,0.5)';
     Chart.defaults.plugins.tooltip.borderWidth = 1;
+    Chart.defaults.plugins.tooltip.callbacks.title = items =>
+        items.length ? PubgityTimestamps.chartLabel(items[0].label) : '';
     Chart.defaults.scale.grid.color = 'rgba(75,85,99,0.3)';
     Chart.defaults.scale.ticks.color = '#9ca3af';
     Chart.defaults.layout.padding = { right: 24 };
@@ -264,4 +267,3 @@
 </script>
 </body>
 </html>
-
