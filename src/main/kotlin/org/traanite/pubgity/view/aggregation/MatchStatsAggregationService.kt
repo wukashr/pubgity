@@ -8,9 +8,10 @@ import org.traanite.pubgity.match.ParticipantModeStats
 import org.traanite.pubgity.player.GameModeStats
 import org.traanite.pubgity.player.ModeStats
 import org.traanite.pubgity.player.SeasonStats
+import org.traanite.pubgity.view.MatchLabelFormatter
 
 @Service
-class MatchStatsAggregationService {
+class MatchStatsAggregationService(private val matchLabelFormatter: MatchLabelFormatter) {
 
     fun computePerMatchSkillData(
         matches: List<Match>, accountId: String
@@ -51,7 +52,7 @@ class MatchStatsAggregationService {
 
             PerMatchSkillData(
                 matchId = match.matchId,
-                label = "${match.createdAt} - ${match.gameMode} - ${match.mapName}",
+                label = matchLabelFormatter.chartLabel(match),
                 participantCount = realParticipants.size,
                 botCount = match.botCount,
                 minKills = min(kills),
@@ -194,7 +195,7 @@ class MatchStatsAggregationService {
 
             PerMatchSeasonSkillData(
                 matchId = match.matchId,
-                label = "${match.createdAt} - ${match.gameMode} - ${match.mapName}",
+                label = matchLabelFormatter.chartLabel(match),
                 seasonParticipantCount = aggregated.size,
                 minKills = min(kills), maxKills = max(kills), medianKills = median(kills), avgKills = avg(kills),
                 minDamage = min(damage), maxDamage = max(damage), medianDamage = median(damage), avgDamage = avg(damage),
@@ -461,4 +462,3 @@ data class PerMatchSeasonSkillData(
     val playerSeasonDmgPerMinuteLifetime: Double,
     val playerSeasonDmgPerMinuteMode: Double
 )
-

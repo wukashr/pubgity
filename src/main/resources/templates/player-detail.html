@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title th:text="'Pubgity - ' + ${player.playerName}">Player Detail</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script th:replace="~{fragments/timestamps :: script}"></script>
 </head>
 <body class="bg-gray-950 text-gray-100 min-h-screen">
 
@@ -25,7 +26,8 @@
         <div class="text-xs text-gray-500 mt-1 space-y-0.5">
             <p><span class="text-gray-400">Account:</span> <span class="font-mono" th:text="${player.accountId}"></span></p>
             <p><span class="text-gray-400">Last stats snapshot:</span>
-                <span th:text="${latestStats} != null ? ${latestStats.capturedAt} : 'Never'"></span></p>
+                <time th:replace="~{fragments/timestamps :: timestamp(${latestStats?.capturedAt}, false)}"></time>
+                <span th:if="${latestStats == null}">Never</span></p>
             <p><span th:text="${#lists.size(matches)}"></span> matches loaded</p>
         </div>
     </div>
@@ -375,7 +377,9 @@
                 </thead>
                 <tbody class="divide-y divide-gray-700/40">
                 <tr th:each="match : ${matches}" class="bg-gray-800/40 hover:bg-gray-700/40 transition-colors">
-                    <td class="px-4 py-2 text-gray-400 text-xs" th:text="${match.createdAt}"></td>
+                    <td class="px-4 py-2 text-gray-400 text-xs">
+                        <time th:replace="~{fragments/timestamps :: timestamp(${match.createdAt}, false)}"></time>
+                    </td>
                     <td class="px-4 py-2 text-gray-200 font-medium" th:text="${match.placeTaken}"></td>
                     <td class="px-4 py-2 text-gray-300" th:text="${match.gameMode}"></td>
                     <td class="px-4 py-2 text-gray-300" th:text="${match.mapName}"></td>
@@ -396,4 +400,3 @@
 </main>
 </body>
 </html>
-

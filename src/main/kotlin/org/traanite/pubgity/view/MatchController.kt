@@ -17,7 +17,8 @@ import org.traanite.pubgity.view.aggregation.MatchStatsAggregationService
 class MatchController(
     private val matchService: MatchService,
     private val playerService: PlayerService,
-    private val matchStatsAggregationService: MatchStatsAggregationService
+    private val matchStatsAggregationService: MatchStatsAggregationService,
+    private val matchViewMapper: MatchViewMapper
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(MatchController::class.java)
@@ -50,60 +51,13 @@ class MatchController(
                 val agg = p.lifetimeStatsSnapshot?.let {
                     matchStatsAggregationService.aggregateParticipantStats(it, match.gameMode)
                 }
-                ParticipantView(
-                    accountId = p.accountId,
-                    playerName = p.playerName,
-                    winPlace = p.matchStats?.winPlace ?: 123,
-                    rosterWinPlace = roster.rank,
-                    killsMatch = p.matchStats?.kills ?: 0,
-                    dmgMatch = p.matchStats?.damageDealt?.toInt() ?: 0,
-                    kills = agg?.totalKills ?: 0,
-                    damage = agg?.totalDamageDealt ?: 0.0,
-                    dmgPerRoundLifetime = agg?.dmgPerRoundLifetime ?: 0.0,
-                    dmgPerRoundMode = agg?.dmgPerRoundMode ?: 0.0,
-                    dmgPerMinuteLifetime = agg?.dmgPerMinuteLifetime ?: 0.0,
-                    dmgPerMinuteMode = agg?.dmgPerMinuteMode ?: 0.0,
-                    wins = agg?.modeWins ?: 0,
-                    roundsPlayed = agg?.modeRoundsPlayed ?: 0,
-                    headshotKills = agg?.modeHeadshotKills ?: 0,
-                    top10s = agg?.totalTop10s ?: 0,
-                    timeSurvived = agg?.totalTimeSurvived ?: 0.0,
-                    bestRankPoint = agg?.bestRankPoint ?: 0.0,
-                    kd = agg?.modeKD ?: 0.0,
-                    isPrivacyProtected = p.isPrivacyProtected,
-                    hasLifetimeStats = p.lifetimeStatsSnapshot != null
-                )
+                p.toParticipantView(roster.rank, agg)
             }
             .sortedByDescending { it.kills }
 
         model.addAttribute("player", player)
-        model.addAttribute("match", match)
+        model.addAttribute("match", matchViewMapper.toDetail(match))
         model.addAttribute("participants", participantsWithMode)
         return "match-detail"
     }
 }
-
-data class ParticipantView(
-    val accountId: String,
-    val playerName: String,
-    val kills: Int,
-    val winPlace: Int,
-    val rosterWinPlace: Int,
-    val killsMatch: Int,
-    val dmgMatch: Int,
-    val damage: Double,
-    val dmgPerRoundLifetime: Double,
-    val dmgPerRoundMode: Double,
-    val dmgPerMinuteLifetime: Double,
-    val dmgPerMinuteMode: Double,
-    val wins: Int,
-    val roundsPlayed: Int,
-    val headshotKills: Int,
-    val top10s: Int,
-    val timeSurvived: Double,
-    val bestRankPoint: Double,
-    val kd: Double,
-    val isPrivacyProtected: Boolean = false,
-    val hasLifetimeStats: Boolean = true
-)
-

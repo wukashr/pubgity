@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Pubgity - Jobs</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script th:replace="~{fragments/timestamps :: script}"></script>
     <style>
         .ts-hidden .ts-col { display: none; }
         .truncate-cell { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
@@ -117,9 +118,15 @@
                                   th:text="${job.status}"></span>
                         </td>
                         <td class="px-3 py-2 text-gray-400" th:text="${job.progress}"></td>
-                        <td class="px-3 py-2 text-gray-500 ts-col" th:text="${job.createdAt}"></td>
-                        <td class="px-3 py-2 text-gray-500 ts-col" th:text="${job.startedAt}"></td>
-                        <td class="px-3 py-2 text-gray-500 ts-col" th:text="${job.completedAt}"></td>
+                        <td class="px-3 py-2 text-gray-500 ts-col">
+                            <time th:replace="~{fragments/timestamps :: timestamp(${job.createdAt}, false)}"></time>
+                        </td>
+                        <td class="px-3 py-2 text-gray-500 ts-col">
+                            <time th:replace="~{fragments/timestamps :: timestamp(${job.startedAt}, false)}"></time>
+                        </td>
+                        <td class="px-3 py-2 text-gray-500 ts-col">
+                            <time th:replace="~{fragments/timestamps :: timestamp(${job.completedAt}, false)}"></time>
+                        </td>
                         <td class="px-3 py-2">
                             <div class="flex items-center gap-1.5 max-w-[220px]">
                                 <span class="truncate-cell text-red-400" onclick="toggleTruncate(this)"
@@ -226,9 +233,15 @@
                                   th:text="${job.status}"></span>
                         </td>
                         <td class="px-3 py-2 text-gray-400" th:text="${job.progress}"></td>
-                        <td class="px-3 py-2 text-gray-500 ts-col" th:text="${job.createdAt}"></td>
-                        <td class="px-3 py-2 text-gray-500 ts-col" th:text="${job.startedAt}"></td>
-                        <td class="px-3 py-2 text-gray-500 ts-col" th:text="${job.completedAt}"></td>
+                        <td class="px-3 py-2 text-gray-500 ts-col">
+                            <time th:replace="~{fragments/timestamps :: timestamp(${job.createdAt}, false)}"></time>
+                        </td>
+                        <td class="px-3 py-2 text-gray-500 ts-col">
+                            <time th:replace="~{fragments/timestamps :: timestamp(${job.startedAt}, false)}"></time>
+                        </td>
+                        <td class="px-3 py-2 text-gray-500 ts-col">
+                            <time th:replace="~{fragments/timestamps :: timestamp(${job.completedAt}, false)}"></time>
+                        </td>
                         <td class="px-3 py-2">
                             <div class="flex items-center gap-1.5 max-w-[220px]">
                                 <span class="truncate-cell text-red-400" onclick="toggleTruncate(this)"
@@ -419,4 +432,3 @@
 </script>
 </body>
 </html>
-

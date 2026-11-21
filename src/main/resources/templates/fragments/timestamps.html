@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script th:fragment="script" th:src="@{/js/timestamps.js}"></script>
+</head>
+<body>
+<time th:fragment="timestamp(value, dateOnly)"
+      th:if="${value != null}"
+      th:datetime="${value}"
+      th:attr="data-local-time=${dateOnly ? 'date' : 'datetime'}"
+      th:title="${#temporals.format(value, 'yyyy-MM-dd HH:mm:ss', 'UTC')} + ' UTC'"
+      th:text="${#temporals.format(value, dateOnly ? 'yyyy-MM-dd' : 'yyyy-MM-dd HH:mm:ss', 'UTC')} + ${dateOnly ? '' : ' UTC'}"></time>
+</body>
+</html>

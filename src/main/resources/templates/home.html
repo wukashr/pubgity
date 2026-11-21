@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Pubgity - Home</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script th:replace="~{fragments/timestamps :: script}"></script>
 </head>
 <body class="bg-gray-950 text-gray-100 min-h-screen">
 
@@ -110,7 +111,9 @@
                             <span class="text-gray-600 text-xs"> / <span th:text="${m.playerCount}"></span></span>
                         </td>
                         <td class="px-4 py-2.5 text-gray-500 text-xs" th:text="${m.playerCount}"></td>
-                        <td class="px-4 py-2.5 text-gray-500 text-xs" th:text="${#temporals.format(m.createdAt, 'yyyy-MM-dd')}"></td>
+                        <td class="px-4 py-2.5 text-gray-500 text-xs">
+                            <time th:replace="~{fragments/timestamps :: timestamp(${m.createdAt}, true)}"></time>
+                        </td>
                     </tr>
                     </tbody>
                 </table>
@@ -121,4 +124,3 @@
 </main>
 </body>
 </html>
-
