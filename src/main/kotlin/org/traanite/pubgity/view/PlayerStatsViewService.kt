@@ -18,7 +18,8 @@ class PlayerStatsViewService(
     private val matchService: MatchService,
     private val playerService: PlayerService,
     private val matchStatsAggregationService: MatchStatsAggregationService,
-    private val playerStatsAggregationService: PlayerStatsAggregationService
+    private val playerStatsAggregationService: PlayerStatsAggregationService,
+    private val matchLabelFormatter: MatchLabelFormatter
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(PlayerStatsViewService::class.java)
@@ -59,8 +60,8 @@ class PlayerStatsViewService(
             PlayerMatchView(
                 matchId = it.matchId,
                 createdAt = it.createdAt,
-                gameMode = it.gameMode,
-                mapName = it.mapName,
+                gameMode = matchLabelFormatter.gameMode(it.gameMode),
+                mapName = matchLabelFormatter.mapName(it.mapName),
                 duration = it.duration,
                 botCount = it.botCount,
                 playerCount = it.rosters.flatMap { roster -> roster.participants }.size,
