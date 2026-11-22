@@ -64,6 +64,12 @@ Referenced snapshots of stats must not be modified, expired, or deleted.
 
 ## Tests
 
+Start Docker before running the tests:
+
 ```bash
 ./gradlew test
 ```
+
+Testcontainers starts an isolated MongoDB instance for repository tests and cleans it up afterward.
+No running application database or MongoDB connection environment variable is needed. The test
+suite fails if Docker is unavailable.

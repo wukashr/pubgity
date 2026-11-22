@@ -7,6 +7,9 @@ Step-by-step guide to run Pubgity locally with Keycloak as the SSO provider.
 - Docker with Compose plugin
 - JDK 24
 
+The test suite requires a running Docker daemon. `./gradlew test` starts its own isolated MongoDB
+with Testcontainers.
+
 ---
 
 ## Step 1 — Start infrastructure

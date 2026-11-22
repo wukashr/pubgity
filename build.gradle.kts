@@ -33,8 +33,11 @@ dependencies {
     implementation("io.github.resilience4j:resilience4j-retry:2.2.0")
     implementation("com.github.ben-manes.caffeine:caffeine")
     testImplementation("org.springframework.boot:spring-boot-starter-restclient-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-data-mongodb-test")
+    testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.springframework.boot:spring-boot-starter-thymeleaf-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
+    testImplementation("org.testcontainers:testcontainers-mongodb")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
@@ -47,4 +50,6 @@ kotlin {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    outputs.upToDateWhen { false }
+    outputs.doNotCacheIf("MongoDB integration tests must run against Testcontainers") { true }
 }

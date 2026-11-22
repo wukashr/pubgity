@@ -1,34 +1,40 @@
 package org.traanite.pubgity
 
+import com.mongodb.ConnectionString
+import com.mongodb.client.MongoClient
+import org.bson.Document
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
-import org.springframework.test.context.bean.override.mockito.MockitoBean
+import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.test.context.ActiveProfiles
+import org.testcontainers.mongodb.MongoDBContainer
+import org.traanite.pubgity.config.MongoTestConfiguration
 import org.traanite.pubgity.config.TestSecurityConfig
-import org.traanite.pubgity.import.ImportJobRepository
-import org.traanite.pubgity.match.MatchRepository
-import org.traanite.pubgity.player.PlayerRepository
-import org.traanite.pubgity.user.AppUserRepository
+import kotlin.test.assertEquals
 
 @SpringBootTest
-@Import(TestSecurityConfig::class)
+@ActiveProfiles("test")
+@Import(TestSecurityConfig::class, MongoTestConfiguration::class)
 class PubgityApplicationTests {
 
-    // todo: for future tests using repos, add testcontainers
-    @MockitoBean
-    lateinit var matchRepository: MatchRepository
+    @Autowired
+    lateinit var mongo: MongoTemplate
 
-    @MockitoBean
-    lateinit var appUserRepository: AppUserRepository
+    @Autowired
+    lateinit var container: MongoDBContainer
 
-    @MockitoBean
-    lateinit var importJobRepository: ImportJobRepository
-
-    @MockitoBean
-    lateinit var playerRepository: PlayerRepository
+    @Autowired
+    lateinit var client: MongoClient
 
     @Test
     fun contextLoads() {
+        mongo.db.runCommand(Document("ping", 1))
+        assertEquals(
+            ConnectionString(container.replicaSetUrl).hosts,
+            client.clusterDescription.serverDescriptions.map { it.address.toString() }
+        )
     }
 
 }
