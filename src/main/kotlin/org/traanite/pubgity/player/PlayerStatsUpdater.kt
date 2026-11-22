@@ -13,7 +13,8 @@ class PlayerStatsUpdater(
     private val pubgApiClient: PubgApiClient,
     private val playerProperties: PlayerProperties,
     private val playerRepository: PlayerRepository,
-    private val playerResolver: PlayerResolver
+    private val playerResolver: PlayerResolver,
+    private val snapshots: StatsSnapshotService
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(PlayerStatsUpdater::class.java)
@@ -32,7 +33,7 @@ class PlayerStatsUpdater(
         }
 
         logger.info("Updating lifetime stats for player '{}'", player.playerName)
-        val latestSnapshot = player.lifetimeStats.latestSnapshot
+        val latestSnapshot = snapshots.latestLifetime(accountId)
 
         if (latestSnapshot != null && isWithinCacheThreshold(latestSnapshot.capturedAt)) {
             logger.debug(
@@ -40,15 +41,15 @@ class PlayerStatsUpdater(
                 player.playerName,
                 latestSnapshot.capturedAt
             )
+            if (player.id == null) playerRepository.save(player)
             return StatsUpdateResult.SKIPPED
         }
 
         try {
             val stats = pubgApiClient.getLifetimeStats(accountId).data.attributes.toLifetimeStats()
-            player.updateLifetimeStats(stats).let {
-                playerRepository.save(it)
-                logger.info("Lifetime stats updated: {}", it.accountId)
-            }
+            if (player.id == null) playerRepository.save(player)
+            snapshots.insertLifetime(accountId, stats)
+            logger.info("Lifetime stats updated: {}", accountId)
             return StatsUpdateResult.UPDATED
         } catch (e: PubgApiNotFoundException) {
             return resolveNotFoundFallback(accountId, playerName, e)
@@ -58,7 +59,7 @@ class PlayerStatsUpdater(
         }
     }
 
-    fun updateCurrentSeasonPlayerStats(accountId: String, playerName: String): StatsUpdateResult {
+    fun updateSeasonPlayerStats(accountId: String, playerName: String, seasonId: String): StatsUpdateResult {
         val player =
             playerRepository.findByAccountId(accountId) ?: Player(accountId = accountId, playerName = playerName)
 
@@ -71,25 +72,22 @@ class PlayerStatsUpdater(
         }
 
         try {
-            val currentSeason = pubgApiClient.getCurrentSeason()
-                ?: throw IllegalStateException("No current season found")
-
-            if (player.seasonStats.stats[currentSeason.id] != null
-                && isWithinCacheThreshold(player.seasonStats.stats[currentSeason.id]!!.capturedAt)
-            ) {
+            val latestSnapshot = snapshots.latestSeason(accountId, seasonId)
+            if (latestSnapshot != null && isWithinCacheThreshold(latestSnapshot.capturedAt)) {
                 logger.info(
                     "Skipping season stats update for '{}' - latest snapshot for season {} is within cache threshold",
                     player.playerName,
-                    currentSeason.id
+                    seasonId
                 )
+                if (player.id == null) playerRepository.save(player)
                 return StatsUpdateResult.SKIPPED
             }
 
-            val playerSeasonStats = pubgApiClient.getSeasonStats(currentSeason.id, accountId)
-            player.updateSeasonStats(playerSeasonStats).let {
-                playerRepository.save(it)
-                logger.info("Season stats updated: {}", it.accountId)
-            }
+            val playerSeasonStats = pubgApiClient.getSeasonStats(seasonId, accountId)
+            check(playerSeasonStats.seasonId == seasonId) { "Unexpected season ${playerSeasonStats.seasonId} for $seasonId" }
+            if (player.id == null) playerRepository.save(player)
+            snapshots.insertSeason(accountId, playerSeasonStats)
+            logger.info("Season stats updated: {}", accountId)
             return StatsUpdateResult.UPDATED
         } catch (e: PubgApiNotFoundException) {
             return resolveNotFoundFallback(accountId, playerName, e)
