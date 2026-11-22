@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/wukashr/pubgity/compare/v1.4.0...v1.5.0) (2026-11-22)
+
+
+### Features
+
+* UI improvements ([d67f20b](https://github.com/wukashr/pubgity/commit/d67f20bbefd5a2b17b8bab3450ac9bb6a51b74aa))
+
 ## [1.4.0](https://github.com/wukashr/pubgity/compare/v1.3.0...v1.4.0) (2026-11-22)
 
 
