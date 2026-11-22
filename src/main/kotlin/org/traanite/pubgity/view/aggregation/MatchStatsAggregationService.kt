@@ -1,27 +1,27 @@
 package org.traanite.pubgity.view.aggregation
 
+import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import org.traanite.pubgity.match.Match
 import org.traanite.pubgity.match.ParticipantGameModeStats
 import org.traanite.pubgity.match.ParticipantLifetimeStats
 import org.traanite.pubgity.match.ParticipantModeStats
-import org.traanite.pubgity.player.GameModeStats
-import org.traanite.pubgity.player.ModeStats
-import org.traanite.pubgity.player.SeasonStats
+import org.traanite.pubgity.player.*
+import org.traanite.pubgity.pubgapi.toParticipantLifetimeStats
 import org.traanite.pubgity.view.MatchLabelFormatter
 
 @Service
 class MatchStatsAggregationService(private val matchLabelFormatter: MatchLabelFormatter) {
 
     fun computePerMatchSkillData(
-        matches: List<Match>, accountId: String
+        matches: List<Match>, accountId: String, snapshots: Map<ObjectId, LifetimeStatsSnapshot>
     ): List<PerMatchSkillData> {
         return matches.sortedBy { it.createdAt }.map { match ->
             val allParticipants = match.rosters.flatMap { it.participants }
-            val realParticipants = allParticipants.filter { it.lifetimeStatsSnapshot != null }
+            val realParticipants = allParticipants.filter { it.lifetimeStatsSnapshotId != null }
 
             val aggregated = realParticipants.mapNotNull { p ->
-                aggregateParticipantStats(p.lifetimeStatsSnapshot!!, match.gameMode)
+                aggregateParticipantStats(snapshots.getValue(p.lifetimeStatsSnapshotId!!).stats.toParticipantLifetimeStats(), match.gameMode)
             }
 
             val kills = aggregated.map { it.totalKills.toDouble() }
@@ -44,9 +44,9 @@ class MatchStatsAggregationService(private val matchLabelFormatter: MatchLabelFo
             val top10s = aggregated.map { it.totalTop10s.toDouble() }
 
 
-            val playerSnapshot = allParticipants.firstOrNull { it.accountId == accountId }?.lifetimeStatsSnapshot?.let {
+            val playerSnapshot = allParticipants.firstOrNull { it.accountId == accountId }?.lifetimeStatsSnapshotId?.let {
                 aggregateParticipantStats(
-                    it, match.gameMode
+                    snapshots.getValue(it).stats.toParticipantLifetimeStats(), match.gameMode
                 )
             }
 
@@ -108,19 +108,19 @@ class MatchStatsAggregationService(private val matchLabelFormatter: MatchLabelFo
                 maxTop10s = max(top10s),
                 medianTop10s = median(top10s),
                 avgTop10s = avg(top10s),
-                playerSnapshotKills = playerSnapshot?.totalKills?.toDouble() ?: 0.0,
-                playerSnapshotDamage = playerSnapshot?.totalDamageDealt ?: 0.0,
-                playerSnapshotDmgPerRoundLifetime = playerSnapshot?.dmgPerRoundLifetime ?: 0.0,
-                playerSnapshotDmgPerRoundMode = playerSnapshot?.dmgPerRoundMode ?: 0.0,
-                playerSnapshotDmgPerMinuteLifetime = playerSnapshot?.dmgPerMinuteLifetime ?: 0.0,
-                playerSnapshotDmgPerMinuteMode = playerSnapshot?.dmgPerMinuteMode ?: 0.0,
-                playerSnapshotKD = playerSnapshot?.modeKD ?: 0.0,
-                playerSnapshotBestRankPoint = playerSnapshot?.bestRankPoint ?: 0.0,
-                playerSnapshotTimeSurvived = playerSnapshot?.totalTimeSurvived ?: 0.0,
-                playerSnapshotWins = playerSnapshot?.modeWins?.toDouble() ?: 0.0,
-                playerSnapshotRoundsPlayed = playerSnapshot?.modeRoundsPlayed?.toDouble() ?: 0.0,
-                playerSnapshotHeadshotKills = playerSnapshot?.modeHeadshotKills?.toDouble() ?: 0.0,
-                playerSnapshotTop10s = playerSnapshot?.totalTop10s?.toDouble() ?: 0.0
+                playerSnapshotKills = playerSnapshot?.totalKills?.toDouble(),
+                playerSnapshotDamage = playerSnapshot?.totalDamageDealt,
+                playerSnapshotDmgPerRoundLifetime = playerSnapshot?.dmgPerRoundLifetime,
+                playerSnapshotDmgPerRoundMode = playerSnapshot?.dmgPerRoundMode,
+                playerSnapshotDmgPerMinuteLifetime = playerSnapshot?.dmgPerMinuteLifetime,
+                playerSnapshotDmgPerMinuteMode = playerSnapshot?.dmgPerMinuteMode,
+                playerSnapshotKD = playerSnapshot?.modeKD,
+                playerSnapshotBestRankPoint = playerSnapshot?.bestRankPoint,
+                playerSnapshotTimeSurvived = playerSnapshot?.totalTimeSurvived,
+                playerSnapshotWins = playerSnapshot?.modeWins?.toDouble(),
+                playerSnapshotRoundsPlayed = playerSnapshot?.modeRoundsPlayed?.toDouble(),
+                playerSnapshotHeadshotKills = playerSnapshot?.modeHeadshotKills?.toDouble(),
+                playerSnapshotTop10s = playerSnapshot?.totalTop10s?.toDouble()
             )
         }
     }
@@ -162,18 +162,14 @@ class MatchStatsAggregationService(private val matchLabelFormatter: MatchLabelFo
     fun computePerMatchSeasonSkillData(
         matches: List<Match>,
         accountId: String,
-        participantsSeasonStats: Map<String, Map<String, SeasonStats>>
+        snapshots: Map<ObjectId, SeasonStatsSnapshot>
     ): List<PerMatchSeasonSkillData> {
         return matches.sortedBy { it.createdAt }.map { match ->
-            val seasonId = match.seasonId
             val allParticipants = match.rosters.flatMap { it.participants }
 
-            val aggregated = if (seasonId != null) {
-                allParticipants.mapNotNull { p ->
-                    participantsSeasonStats[p.accountId]?.get(seasonId)
-                        ?.let { aggregateSeasonStats(it, match.gameMode) }
-                }
-            } else emptyList()
+            val aggregated = allParticipants.mapNotNull { p ->
+                p.seasonStatsSnapshotId?.let { aggregateSeasonStats(snapshots.getValue(it).stats, match.gameMode) }
+            }
 
             val kills = aggregated.map { it.totalKills.toDouble() }
             val hsKills = aggregated.map { it.modeHeadshotKills.toDouble() }
@@ -188,9 +184,8 @@ class MatchStatsAggregationService(private val matchLabelFormatter: MatchLabelFo
             val wins = aggregated.map { it.modeWins.toDouble() }
             val top10s = aggregated.map { it.totalTop10s.toDouble() }
 
-            val playerAgg = seasonId?.let { sid ->
-                participantsSeasonStats[accountId]?.get(sid)
-                    ?.let { aggregateSeasonStats(it, match.gameMode) }
+            val playerAgg = allParticipants.firstOrNull { it.accountId == accountId }?.seasonStatsSnapshotId?.let {
+                aggregateSeasonStats(snapshots.getValue(it).stats, match.gameMode)
             }
 
             PerMatchSeasonSkillData(
@@ -216,18 +211,18 @@ class MatchStatsAggregationService(private val matchLabelFormatter: MatchLabelFo
                 minHeadshotKills = min(hsKills), maxHeadshotKills = max(hsKills),
                 medianHeadshotKills = median(hsKills), avgHeadshotKills = avg(hsKills),
                 minTop10s = min(top10s), maxTop10s = max(top10s), medianTop10s = median(top10s), avgTop10s = avg(top10s),
-                playerSeasonKills = playerAgg?.totalKills?.toDouble() ?: 0.0,
-                playerSeasonDamage = playerAgg?.totalDamageDealt ?: 0.0,
-                playerSeasonDmgPerRoundLifetime = playerAgg?.dmgPerRoundLifetime ?: 0.0,
-                playerSeasonDmgPerRoundMode = playerAgg?.dmgPerRoundMode ?: 0.0,
-                playerSeasonDmgPerMinuteLifetime = playerAgg?.dmgPerMinuteLifetime ?: 0.0,
-                playerSeasonDmgPerMinuteMode = playerAgg?.dmgPerMinuteMode ?: 0.0,
-                playerSeasonKD = playerAgg?.modeKD ?: 0.0,
-                playerSeasonTimeSurvived = playerAgg?.totalTimeSurvived ?: 0.0,
-                playerSeasonWins = playerAgg?.modeWins?.toDouble() ?: 0.0,
-                playerSeasonRoundsPlayed = playerAgg?.modeRoundsPlayed?.toDouble() ?: 0.0,
-                playerSeasonHeadshotKills = playerAgg?.modeHeadshotKills?.toDouble() ?: 0.0,
-                playerSeasonTop10s = playerAgg?.totalTop10s?.toDouble() ?: 0.0
+                playerSeasonKills = playerAgg?.totalKills?.toDouble(),
+                playerSeasonDamage = playerAgg?.totalDamageDealt,
+                playerSeasonDmgPerRoundLifetime = playerAgg?.dmgPerRoundLifetime,
+                playerSeasonDmgPerRoundMode = playerAgg?.dmgPerRoundMode,
+                playerSeasonDmgPerMinuteLifetime = playerAgg?.dmgPerMinuteLifetime,
+                playerSeasonDmgPerMinuteMode = playerAgg?.dmgPerMinuteMode,
+                playerSeasonKD = playerAgg?.modeKD,
+                playerSeasonTimeSurvived = playerAgg?.totalTimeSurvived,
+                playerSeasonWins = playerAgg?.modeWins?.toDouble(),
+                playerSeasonRoundsPlayed = playerAgg?.modeRoundsPlayed?.toDouble(),
+                playerSeasonHeadshotKills = playerAgg?.modeHeadshotKills?.toDouble(),
+                playerSeasonTop10s = playerAgg?.totalTop10s?.toDouble()
             )
         }
     }
@@ -366,19 +361,19 @@ data class PerMatchSkillData(
     val maxTop10s: Double,
     val medianTop10s: Double,
     val avgTop10s: Double,
-    val playerSnapshotKills: Double,
-    val playerSnapshotDamage: Double,
-    val playerSnapshotKD: Double,
-    val playerSnapshotBestRankPoint: Double,
-    val playerSnapshotTimeSurvived: Double,
-    val playerSnapshotWins: Double,
-    val playerSnapshotRoundsPlayed: Double,
-    val playerSnapshotHeadshotKills: Double,
-    val playerSnapshotTop10s: Double,
-    val playerSnapshotDmgPerRoundLifetime: Double,
-    val playerSnapshotDmgPerRoundMode: Double,
-    val playerSnapshotDmgPerMinuteLifetime: Double,
-    val playerSnapshotDmgPerMinuteMode: Double
+    val playerSnapshotKills: Double?,
+    val playerSnapshotDamage: Double?,
+    val playerSnapshotKD: Double?,
+    val playerSnapshotBestRankPoint: Double?,
+    val playerSnapshotTimeSurvived: Double?,
+    val playerSnapshotWins: Double?,
+    val playerSnapshotRoundsPlayed: Double?,
+    val playerSnapshotHeadshotKills: Double?,
+    val playerSnapshotTop10s: Double?,
+    val playerSnapshotDmgPerRoundLifetime: Double?,
+    val playerSnapshotDmgPerRoundMode: Double?,
+    val playerSnapshotDmgPerMinuteLifetime: Double?,
+    val playerSnapshotDmgPerMinuteMode: Double?
 )
 
 data class AggregatedParticipantStats(
@@ -449,16 +444,16 @@ data class PerMatchSeasonSkillData(
     val maxTop10s: Double,
     val medianTop10s: Double,
     val avgTop10s: Double,
-    val playerSeasonKills: Double,
-    val playerSeasonDamage: Double,
-    val playerSeasonKD: Double,
-    val playerSeasonTimeSurvived: Double,
-    val playerSeasonWins: Double,
-    val playerSeasonRoundsPlayed: Double,
-    val playerSeasonHeadshotKills: Double,
-    val playerSeasonTop10s: Double,
-    val playerSeasonDmgPerRoundLifetime: Double,
-    val playerSeasonDmgPerRoundMode: Double,
-    val playerSeasonDmgPerMinuteLifetime: Double,
-    val playerSeasonDmgPerMinuteMode: Double
+    val playerSeasonKills: Double?,
+    val playerSeasonDamage: Double?,
+    val playerSeasonKD: Double?,
+    val playerSeasonTimeSurvived: Double?,
+    val playerSeasonWins: Double?,
+    val playerSeasonRoundsPlayed: Double?,
+    val playerSeasonHeadshotKills: Double?,
+    val playerSeasonTop10s: Double?,
+    val playerSeasonDmgPerRoundLifetime: Double?,
+    val playerSeasonDmgPerRoundMode: Double?,
+    val playerSeasonDmgPerMinuteLifetime: Double?,
+    val playerSeasonDmgPerMinuteMode: Double?
 )

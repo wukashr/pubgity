@@ -14,6 +14,9 @@ touched by these workflows.
 | `.github/workflows/release-please.yml` | push to `main` | Runs tests, then (a) builds & pushes a Docker image to GHCR tagged `sha-<short-sha>` + `edge`, and (b) runs [release-please](https://github.com/googleapis/release-please-action), which parses commits and maintains a release PR. Merging that PR bumps the version, tags the commit, and publishes a GitHub Release. |
 | `.github/workflows/release-published.yml` | GitHub Release **published** | **Promotes** the `sha-<sha>` image already built for that commit to the version tag + `latest` (no rebuild), then calls the Coolify API to point the application at the new tag and restarts it. Falls back to building from source if that image is missing. |
 
+Both test jobs require the GitHub-hosted runner's Docker daemon: Testcontainers starts isolated
+MongoDB instances for repository and application-flow tests.
+
 ## Image strategy: build once, promote on release
 
 Every push to `main` builds exactly one image, tagged with the commit SHA

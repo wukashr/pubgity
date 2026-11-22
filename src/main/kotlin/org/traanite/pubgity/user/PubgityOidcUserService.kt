@@ -30,6 +30,7 @@ class PubgityOidcUserService(
         val oidcUser = super.loadUser(userRequest)
 
         val sub = oidcUser.subject
+            ?: throw IllegalStateException("OIDC subject is required")
         val defaultUsername = oidcUser.preferredUsername
             ?: oidcUser.fullName
             ?: oidcUser.email

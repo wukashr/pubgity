@@ -1,34 +1,20 @@
 package org.traanite.pubgity.view
 
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
-import org.traanite.pubgity.player.PlayerService
 
 @Controller
 @RequestMapping("/players")
-class PlayerController(
-    private val playerService: PlayerService,
-    private val playerStatsViewService: PlayerStatsViewService
-) {
-    companion object {
-        private val logger = LoggerFactory.getLogger(PlayerController::class.java)
-    }
-
+class PlayerController(private val playerStatsViewService: PlayerStatsViewService) {
     // todo dmg / round (mode)
     //  dmg / round (overall)
     //  move kd by mode calculation to aggregator
     @GetMapping
     fun listPlayers(@RequestParam(required = false) filter: String?, model: Model): String {
-        val players = if (filter.isNullOrBlank()) {
-            playerService.findAll()
-        } else {
-            playerService.searchByPlayerName(filter)
-        }
-        logger.debug("Player list: filter='{}', found {} players", filter ?: "", players.size)
-        model.addAttribute("players", players.sortedByDescending { it.matches.matchIds.size })
-        model.addAttribute("filter", filter ?: "")
+        val list = playerStatsViewService.list(filter)
+        model.addAttribute("players", list.players)
+        model.addAttribute("filter", list.filter)
         return "players"
     }
 
@@ -42,19 +28,32 @@ class PlayerController(
         if (accountId.isBlank()) {
             return "players"
         }
-        playerStatsViewService.populateModelByAccountId(accountId, model)
+        val detail = playerStatsViewService.detailByAccountId(accountId)
+        model.addAttribute("player", detail.player)
+        model.addAttribute("matches", detail.matches)
+        model.addAttribute("playerAggregated", detail.playerAggregated)
+        model.addAttribute("lifetimeGameModeStatsView", detail.lifetimeGameModeStatsView)
+        model.addAttribute("playerSeasonAggregated", detail.playerSeasonAggregated)
+        model.addAttribute("seasonGameModeStatsView", detail.seasonGameModeStatsView)
+        model.addAttribute("latestSeasonId", detail.latestSeasonStats?.seasonId)
+        model.addAttribute("latestSeasonStats", detail.latestSeasonStats)
+        model.addAttribute("latestStats", detail.latestStats)
         return "player-detail"
     }
 
     @GetMapping("/{accountId}/charts/lifetime")
     fun playerLifetimeCharts(@PathVariable accountId: String, model: Model): String {
-        playerStatsViewService.populateModelByAccountId(accountId, model)
+        val chart = playerStatsViewService.lifetimeChart(accountId)
+        model.addAttribute("player", chart.player)
+        model.addAttribute("perMatchStats", chart.perMatchStats)
         return "player-lifetime-charts"
     }
 
     @GetMapping("/{accountId}/charts/season")
     fun playerSeasonCharts(@PathVariable accountId: String, model: Model): String {
-        playerStatsViewService.populateModelByAccountId(accountId, model)
+        val chart = playerStatsViewService.seasonChart(accountId)
+        model.addAttribute("player", chart.player)
+        model.addAttribute("perMatchSeasonStats", chart.perMatchSeasonStats)
         return "player-season-charts"
     }
 
@@ -63,8 +62,7 @@ class PlayerController(
         @PathVariable accountId: String,
         @PathVariable isPrivacyProtected: Boolean
     ): String {
-        playerService.setPrivacyProtected(accountId, isPrivacyProtected)
-        logger.info("Admin set isPrivacyProtected={} for accountId={}", isPrivacyProtected, accountId)
+        playerStatsViewService.setPrivacyProtected(accountId, isPrivacyProtected)
         return "redirect:/players/$accountId"
     }
 }

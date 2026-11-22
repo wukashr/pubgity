@@ -1,23 +1,21 @@
 package org.traanite.pubgity.view
 
+import org.bson.types.ObjectId
 import org.junit.jupiter.api.Test
 import org.traanite.pubgity.match.Match
 import org.traanite.pubgity.match.MatchParticipant
 import org.traanite.pubgity.match.MatchParticipantStats
-import org.traanite.pubgity.match.ParticipantLifetimeStats
 import org.traanite.pubgity.view.aggregation.AggregatedParticipantStats
 import tools.jackson.databind.json.JsonMapper
 import java.time.Instant
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 class MatchViewMappersTest {
     private val participant = MatchParticipant(
         accountId = "account.test",
         playerName = "TestPlayer",
         matchStats = MatchParticipantStats(winPlace = 2, kills = 3, damageDealt = 456.9),
-        lifetimeStatsSnapshot = ParticipantLifetimeStats(),
+        lifetimeStatsSnapshotId = ObjectId(),
         isPrivacyProtected = true
     )
 
@@ -38,39 +36,44 @@ class MatchViewMappersTest {
             dmgPerMinuteLifetime = 21.5,
             dmgPerMinuteMode = 22.5
         )
-        assertEquals(
-            ParticipantView(
-                accountId = "account.test",
-                playerName = "TestPlayer",
-                kills = 10,
-                winPlace = 2,
-                rosterWinPlace = 4,
-                killsMatch = 3,
-                dmgMatch = 456,
-                damage = 110.5,
-                dmgPerRoundLifetime = 19.5,
-                dmgPerRoundMode = 20.5,
-                dmgPerMinuteLifetime = 21.5,
-                dmgPerMinuteMode = 22.5,
-                wins = 15,
-                roundsPlayed = 16,
-                headshotKills = 17,
-                top10s = 12,
-                timeSurvived = 130.5,
-                bestRankPoint = 140.5,
-                kd = 18.5,
-                isPrivacyProtected = true,
-                hasLifetimeStats = true
-            ),
-            participant.toParticipantView(4, stats)
+
+        val actual = participant.toParticipantView(4, stats)
+
+        val expected = ParticipantView(
+            accountId = "account.test",
+            playerName = "TestPlayer",
+            kills = 10,
+            winPlace = 2,
+            rosterWinPlace = 4,
+            killsMatch = 3,
+            dmgMatch = 456,
+            damage = 110.5,
+            dmgPerRoundLifetime = 19.5,
+            dmgPerRoundMode = 20.5,
+            dmgPerMinuteLifetime = 21.5,
+            dmgPerMinuteMode = 22.5,
+            wins = 15,
+            roundsPlayed = 16,
+            headshotKills = 17,
+            top10s = 12,
+            timeSurvived = 130.5,
+            bestRankPoint = 140.5,
+            kd = 18.5,
+            isPrivacyProtected = true,
+            hasLifetimeStats = true
         )
+        assertEquals(expected, actual)
     }
 
     @Test
     fun `preserves missing data defaults and snapshot presence independently of aggregate`() {
         val withoutStats = participant.copy(
-            matchStats = null, lifetimeStatsSnapshot = null, isPrivacyProtected = false
+            matchStats = null, lifetimeStatsSnapshotId = null, isPrivacyProtected = false
         )
+
+        val actualWithoutStats = withoutStats.toParticipantView(4, null)
+        val actualWithSnapshot = participant.toParticipantView(4, null)
+
         val expected = ParticipantView(
             accountId = "account.test",
             playerName = "TestPlayer",
@@ -94,20 +97,15 @@ class MatchViewMappersTest {
             isPrivacyProtected = false,
             hasLifetimeStats = false
         )
-        assertEquals(expected, withoutStats.toParticipantView(4, null))
-        assertEquals(
-            expected.copy(
-                winPlace = 2, killsMatch = 3, dmgMatch = 456,
-                isPrivacyProtected = true, hasLifetimeStats = true
-            ),
-            participant.toParticipantView(4, null)
+        val expectedWithSnapshot = expected.copy(
+            winPlace = 2, killsMatch = 3, dmgMatch = 456, isPrivacyProtected = true, hasLifetimeStats = true
         )
-        assertFalse(withoutStats.toParticipantView(4, null).hasLifetimeStats)
-        assertTrue(participant.toParticipantView(4, null).hasLifetimeStats)
+        assertEquals(expected, actualWithoutStats)
+        assertEquals(expectedWithSnapshot, actualWithSnapshot)
     }
 
     @Test
-    fun `maps detail metadata with readable labels without modifying match`() {
+    fun `maps detail metadata with readable labels`() {
         val mapper = MatchViewMapper(MatchLabelFormatter(JsonMapper.builder().build()))
         val match = Match(
             matchId = "match.test",
@@ -115,22 +113,31 @@ class MatchViewMappersTest {
             seasonId = null,
             gameMode = "solo-fpp",
             mapName = "Baltic_Main",
-            duration = 600,
+            duration = 1782,
             botCount = 3,
             telemetryFileUri = null
         )
-        assertEquals(
-            MatchDetailView(
-                matchId = match.matchId,
-                createdAt = match.createdAt,
-                gameMode = "Solo FPP",
-                mapName = "Erangel",
-                duration = 600,
-                botCount = 3
-            ),
-            mapper.toDetail(match)
+
+        val actual = mapper.toDetail(match)
+
+        val expected = MatchDetailView(
+            matchId = "match.test",
+            createdAt = Instant.parse("2026-01-01T12:00:00Z"),
+            gameMode = "Solo FPP",
+            mapName = "Erangel",
+            duration = 1782,
+            botCount = 3
         )
-        assertEquals("solo-fpp", match.gameMode)
-        assertEquals("Baltic_Main", match.mapName)
+        val expectedDuration = "29m 42s"
+
+        assertEquals(expected, actual)
+        assertEquals(expectedDuration, actual.durationLabel)
+    }
+
+    @Test
+    fun `duration labels show minutes and remaining seconds`() {
+        val expectedLabels = mapOf(0 to "0m 0s", 59 to "0m 59s", 60 to "1m 0s", 1782 to "29m 42s", 3601 to "60m 1s")
+
+        expectedLabels.forEach { (seconds, expected) -> assertEquals(expected, formatMatchDuration(seconds)) }
     }
 }
