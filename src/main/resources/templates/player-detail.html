@@ -6,19 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="'Pubgity - ' + ${player.playerName}">Player Detail</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" th:href="@{/css/app.css}" href="/css/app.css">
     <script th:replace="~{fragments/timestamps :: script}"></script>
 </head>
-<body class="bg-gray-950 text-gray-100 min-h-screen">
+<body class="min-h-screen bg-[#080e19] bg-[radial-gradient(ellipse_at_50%_-20%,#193657_0%,#0b1321_45%,#080e19_100%)] bg-fixed font-sans text-gray-100 [color-scheme:dark] [&_*:focus-visible]:!outline [&_*:focus-visible]:!outline-2 [&_*:focus-visible]:!outline-offset-[3px] [&_*:focus-visible]:!outline-blue-300">
 
 <div th:replace="~{fragments/nav :: nav}"></div>
 
-<main id="main-content" class="max-w-screen-xl mx-auto px-4 py-8 space-y-8">
-    <div class="page-heading">
-        <a href="/players" class="inline-flex items-center gap-1 text-gray-400 hover:text-gray-200 text-sm mb-4 transition-colors">
+<main id="main-content"
+      class="max-w-screen-xl mx-auto px-4 pt-6 pb-12 md:pt-10 md:pb-16 space-y-8 [overflow-wrap:anywhere] [&_h1]:tracking-tight [&_h2]:tracking-tight">
+    <div class="rounded-2xl border border-[#2a3b53] bg-[linear-gradient(115deg,rgba(37,99,235,.18),rgba(21,31,48,.9)_60%)] p-5 md:p-6">
+        <a href="/players"
+           class="inline-flex items-center gap-1 text-gray-400 hover:text-gray-200 text-sm mb-4 transition-colors">
             ← Back to players
         </a>
-        <p class="eyebrow">Player profile</p>
+        <p class="mb-2 text-xs font-bold uppercase tracking-[.12em] text-blue-300">Player profile</p>
         <h1 class="text-3xl font-bold text-white flex flex-wrap items-center gap-3">
             <span th:text="${player.playerName}">Player Name</span>
             <span th:if="${player.isPrivacyProtected}"
@@ -26,8 +27,9 @@
                 🔒 Privacy Protected
             </span>
         </h1>
-        <div class="text-xs text-gray-500 mt-1 space-y-0.5">
-            <p><span class="text-gray-400">Account:</span> <span class="font-mono" th:text="${player.accountId}"></span></p>
+        <div class="text-sm md:text-xs text-[#9aabc0] mt-1 space-y-0.5">
+            <p><span class="text-gray-400">Account:</span> <span class="font-mono" th:text="${player.accountId}"></span>
+            </p>
             <p><span class="text-gray-400">Last stats snapshot:</span>
                 <time th:replace="~{fragments/timestamps :: timestamp(${latestStats?.capturedAt}, false)}"></time>
                 <span th:if="${latestStats == null}">Never</span></p>
@@ -37,7 +39,7 @@
 
     <!-- Privacy protected notice -->
     <div th:if="${player.isPrivacyProtected}"
-         class="mobile-stack bg-amber-950/40 border border-amber-700/50 text-amber-300 rounded-lg px-5 py-4 text-sm flex items-center justify-between gap-4">
+         class="flex-wrap max-md:gap-4 [&>*]:min-w-0 md:flex-nowrap bg-amber-950/40 border border-amber-700/50 text-amber-300 rounded-lg px-5 py-4 text-sm flex items-center justify-between gap-4">
         <span>
             🔒 This player's PUBG profile is privacy protected. Lifetime and season stats cannot be
             fetched from the PUBG API for this account.
@@ -46,7 +48,7 @@
               th:action="@{/players/{id}/privacy-protected/{flag}(id=${player.accountId},flag=false)}" class="shrink-0">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <button type="submit"
-                    class="px-3 py-1.5 bg-amber-800 hover:bg-amber-700 text-white text-xs rounded transition-colors whitespace-nowrap">
+                    class="min-h-[44px] md:min-h-0 px-3 py-1.5 bg-amber-800 hover:bg-amber-700 text-white text-sm md:text-xs rounded transition-colors whitespace-nowrap">
                 Unmark
             </button>
         </form>
@@ -54,7 +56,7 @@
 
     <!-- No stats warning -->
     <div th:if="${latestStats == null and !player.isPrivacyProtected}"
-         class="mobile-stack bg-amber-950/40 border border-amber-700/50 text-amber-300 rounded-lg px-5 py-4 text-sm flex items-center justify-between gap-4">
+         class="flex-wrap max-md:gap-4 [&>*]:min-w-0 md:flex-nowrap bg-amber-950/40 border border-amber-700/50 text-amber-300 rounded-lg px-5 py-4 text-sm flex items-center justify-between gap-4">
         <span>
             No lifetime stats available yet.
             <a sec:authorize="hasRole('ADMIN')" href="/jobs" class="underline hover:text-amber-200"> Run an update job from the jobs panel</a>
@@ -63,7 +65,7 @@
               th:action="@{/players/{id}/privacy-protected/{flag}(id=${player.accountId},flag=true)}" class="shrink-0">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <button type="submit"
-                    class="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-white text-xs rounded transition-colors whitespace-nowrap">
+                    class="min-h-[44px] md:min-h-0 px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-white text-sm md:text-xs rounded transition-colors whitespace-nowrap">
                 Mark as Privacy Protected
             </button>
         </form>
@@ -71,13 +73,15 @@
 
 
     <!-- Aggregated summary cards -->
-    <div th:if="${playerAggregated != null or playerSeasonAggregated != null}" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div th:if="${playerAggregated != null or playerSeasonAggregated != null}"
+         class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Lifetime aggregated -->
-        <div th:if="${playerAggregated != null}" class="panel bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
-            <div class="mobile-stack px-5 py-3 border-b border-gray-700 flex justify-between items-center">
+        <div th:if="${playerAggregated != null}"
+             class="bg-[#151f30] border-[#2a3b53] rounded-[.85rem] shadow-[0_12px_30px_rgba(0,0,0,.12)] [&>div.border-b]:border-[#2a3b53] border overflow-hidden">
+            <div class="flex-wrap max-md:gap-4 [&>*]:min-w-0 md:flex-nowrap px-5 py-3 border-b border-gray-700 flex justify-between items-center">
                 <h2 class="font-semibold text-gray-100">Lifetime — All Modes</h2>
                 <a th:href="@{/players/{id}/charts/lifetime(id=${player.accountId})}"
-                   class="action text-xs px-3 py-1.5 bg-indigo-700 hover:bg-indigo-600 text-white rounded transition-colors">
+                   class="inline-flex min-h-[44px] items-center justify-center md:min-h-0 text-sm md:text-xs px-3 py-1.5 bg-indigo-700 hover:bg-indigo-600 text-white rounded transition-colors">
                     View Charts →
                 </a>
             </div>
@@ -85,56 +89,67 @@
                 <tbody class="divide-y divide-gray-700/40">
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-5 py-2 text-gray-400">Total Kills</td>
-                    <td class="px-5 py-2 text-gray-100 font-medium text-right" th:text="${playerAggregated.totalKills}"></td>
+                    <td class="px-5 py-2 text-gray-100 font-medium text-right"
+                        th:text="${playerAggregated.totalKills}"></td>
                 </tr>
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-5 py-2 text-gray-400">Total Damage</td>
-                    <td class="px-5 py-2 text-gray-100 font-medium text-right" th:text="${#numbers.formatDecimal(playerAggregated.totalDamage, 1, 0)}"></td>
+                    <td class="px-5 py-2 text-gray-100 font-medium text-right"
+                        th:text="${#numbers.formatDecimal(playerAggregated.totalDamage, 1, 0)}"></td>
                 </tr>
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-5 py-2 text-gray-400">Total Wins</td>
-                    <td class="px-5 py-2 text-gray-100 font-medium text-right" th:text="${playerAggregated.totalWins}"></td>
+                    <td class="px-5 py-2 text-gray-100 font-medium text-right"
+                        th:text="${playerAggregated.totalWins}"></td>
                 </tr>
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-5 py-2 text-gray-400">Rounds Played</td>
-                    <td class="px-5 py-2 text-gray-100 font-medium text-right" th:text="${playerAggregated.totalRoundsPlayed}"></td>
+                    <td class="px-5 py-2 text-gray-100 font-medium text-right"
+                        th:text="${playerAggregated.totalRoundsPlayed}"></td>
                 </tr>
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-5 py-2 text-gray-400">Top 10s</td>
-                    <td class="px-5 py-2 text-gray-100 font-medium text-right" th:text="${playerAggregated.totalTop10s}"></td>
+                    <td class="px-5 py-2 text-gray-100 font-medium text-right"
+                        th:text="${playerAggregated.totalTop10s}"></td>
                 </tr>
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-5 py-2 text-gray-400">Headshot Kills</td>
-                    <td class="px-5 py-2 text-gray-100 font-medium text-right" th:text="${playerAggregated.totalHeadshotKills}"></td>
+                    <td class="px-5 py-2 text-gray-100 font-medium text-right"
+                        th:text="${playerAggregated.totalHeadshotKills}"></td>
                 </tr>
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-5 py-2 text-gray-400">Time Survived</td>
-                    <td class="px-5 py-2 text-gray-100 font-medium text-right" th:text="${#numbers.formatDecimal(playerAggregated.totalTimeSurvived / 3600, 1, 1)} + 'h'"></td>
+                    <td class="px-5 py-2 text-gray-100 font-medium text-right"
+                        th:text="${#numbers.formatDecimal(playerAggregated.totalTimeSurvived / 3600, 1, 1)} + 'h'"></td>
                 </tr>
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-5 py-2 text-gray-400">Dmg / Round</td>
-                    <td class="px-5 py-2 text-gray-100 font-medium text-right" th:text="${#numbers.formatDecimal(playerAggregated.dmgPerRound, 1, 1)}"></td>
+                    <td class="px-5 py-2 text-gray-100 font-medium text-right"
+                        th:text="${#numbers.formatDecimal(playerAggregated.dmgPerRound, 1, 1)}"></td>
                 </tr>
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-5 py-2 text-gray-400">Best Rank Point</td>
-                    <td class="px-5 py-2 text-gray-100 font-medium text-right" th:text="${#numbers.formatDecimal(playerAggregated.bestRankPoint, 1, 1)}"></td>
+                    <td class="px-5 py-2 text-gray-100 font-medium text-right"
+                        th:text="${#numbers.formatDecimal(playerAggregated.bestRankPoint, 1, 1)}"></td>
                 </tr>
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-5 py-2 text-gray-400">K/D</td>
-                    <td class="px-5 py-2 text-gray-100 font-medium text-right" th:text="${#numbers.formatDecimal(playerAggregated.kd, 1, 2)}"></td>
+                    <td class="px-5 py-2 text-gray-100 font-medium text-right"
+                        th:text="${#numbers.formatDecimal(playerAggregated.kd, 1, 2)}"></td>
                 </tr>
                 </tbody>
             </table>
         </div>
 
         <!-- Season aggregated -->
-        <div th:if="${playerSeasonAggregated != null}" class="panel bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
-            <div class="mobile-stack px-5 py-3 border-b border-gray-700 flex justify-between items-center">
+        <div th:if="${playerSeasonAggregated != null}"
+             class="bg-[#151f30] border-[#2a3b53] rounded-[.85rem] shadow-[0_12px_30px_rgba(0,0,0,.12)] [&>div.border-b]:border-[#2a3b53] border overflow-hidden">
+            <div class="flex-wrap max-md:gap-4 [&>*]:min-w-0 md:flex-nowrap px-5 py-3 border-b border-gray-700 flex justify-between items-center">
                 <h2 class="font-semibold text-gray-100">
                     Season <span class="text-gray-400 text-sm" th:text="${latestSeasonId}"></span> — All Modes
                 </h2>
                 <a th:href="@{/players/{id}/charts/season(id=${player.accountId})}"
-                   class="action text-xs px-3 py-1.5 bg-violet-700 hover:bg-violet-600 text-white rounded transition-colors">
+                   class="inline-flex min-h-[44px] items-center justify-center md:min-h-0 text-sm md:text-xs px-3 py-1.5 bg-violet-700 hover:bg-violet-600 text-white rounded transition-colors">
                     View Charts →
                 </a>
             </div>
@@ -142,39 +157,48 @@
                 <tbody class="divide-y divide-gray-700/40">
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-5 py-2 text-gray-400">Total Kills</td>
-                    <td class="px-5 py-2 text-gray-100 font-medium text-right" th:text="${playerSeasonAggregated.totalKills}"></td>
+                    <td class="px-5 py-2 text-gray-100 font-medium text-right"
+                        th:text="${playerSeasonAggregated.totalKills}"></td>
                 </tr>
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-5 py-2 text-gray-400">Total Damage</td>
-                    <td class="px-5 py-2 text-gray-100 font-medium text-right" th:text="${#numbers.formatDecimal(playerSeasonAggregated.totalDamage, 1, 0)}"></td>
+                    <td class="px-5 py-2 text-gray-100 font-medium text-right"
+                        th:text="${#numbers.formatDecimal(playerSeasonAggregated.totalDamage, 1, 0)}"></td>
                 </tr>
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-5 py-2 text-gray-400">Total Wins</td>
-                    <td class="px-5 py-2 text-gray-100 font-medium text-right" th:text="${playerSeasonAggregated.totalWins}"></td>
+                    <td class="px-5 py-2 text-gray-100 font-medium text-right"
+                        th:text="${playerSeasonAggregated.totalWins}"></td>
                 </tr>
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-5 py-2 text-gray-400">Rounds Played</td>
-                    <td class="px-5 py-2 text-gray-100 font-medium text-right" th:text="${playerSeasonAggregated.totalRoundsPlayed}"></td>
+                    <td class="px-5 py-2 text-gray-100 font-medium text-right"
+                        th:text="${playerSeasonAggregated.totalRoundsPlayed}"></td>
                 </tr>
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-5 py-2 text-gray-400">Top 10s</td>
-                    <td class="px-5 py-2 text-gray-100 font-medium text-right" th:text="${playerSeasonAggregated.totalTop10s}"></td>
+                    <td class="px-5 py-2 text-gray-100 font-medium text-right"
+                        th:text="${playerSeasonAggregated.totalTop10s}"></td>
                 </tr>
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-5 py-2 text-gray-400">Headshot Kills</td>
-                    <td class="px-5 py-2 text-gray-100 font-medium text-right" th:text="${playerSeasonAggregated.totalHeadshotKills}"></td>
+                    <td class="px-5 py-2 text-gray-100 font-medium text-right"
+                        th:text="${playerSeasonAggregated.totalHeadshotKills}"></td>
                 </tr>
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-5 py-2 text-gray-400">Time Survived</td>
-                    <td class="px-5 py-2 text-gray-100 font-medium text-right" th:text="${#numbers.formatDecimal(playerSeasonAggregated.totalTimeSurvived / 3600, 1, 1)} + 'h'"></td>
+                    <td class="px-5 py-2 text-gray-100 font-medium text-right"
+                        th:text="${#numbers.formatDecimal(playerSeasonAggregated.totalTimeSurvived / 3600, 1, 1)} + 'h'"></td>
                 </tr>
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-5 py-2 text-gray-400">Dmg / Round</td>
-                    <td class="px-5 py-2 text-gray-100 font-medium text-right" th:text="${#numbers.formatDecimal(playerSeasonAggregated.dmgPerRound, 1, 1)}"></td>
+                    <td class="px-5 py-2 text-gray-100 font-medium text-right"
+                        th:text="${#numbers.formatDecimal(playerSeasonAggregated.dmgPerRound, 1, 1)}"></td>
                 </tr>
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-5 py-2 text-gray-400">K/D</td>
-                    <td class="px-5 py-2 text-gray-100 font-medium text-right" th:text="${#numbers.formatDecimal(playerSeasonAggregated.kd, 1, 2)}"></td>
+                    <td class="px-5 py-2 text-gray-100 font-medium text-right"
+                        th:text="${#numbers.formatDecimal(playerSeasonAggregated.kd, 1, 2)}"></td>
                 </tr>
                 </tbody>
             </table>
@@ -182,14 +206,16 @@
     </div>
 
     <!-- Lifetime Stats by Game Mode -->
-    <div th:if="${latestStats != null}" class="panel bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+    <div th:if="${latestStats != null}"
+         class="bg-[#151f30] border-[#2a3b53] rounded-[.85rem] shadow-[0_12px_30px_rgba(0,0,0,.12)] [&>div.border-b]:border-[#2a3b53] border overflow-hidden">
         <div class="px-5 py-3 border-b border-gray-700">
             <h2 class="font-semibold text-gray-100">Lifetime Stats by Game Mode</h2>
         </div>
-        <p class="table-hint">Scroll sideways to see all game modes →</p>
-        <div class="overflow-x-auto" tabindex="0" role="region" aria-label="Lifetime statistics by game mode, scroll horizontally">
+        <p class="block px-4 py-2 text-sm text-[#a4b4c9] md:hidden">Scroll sideways to see all game modes →</p>
+        <div class="overflow-x-auto" tabindex="0" role="region"
+             aria-label="Lifetime statistics by game mode, scroll horizontally">
             <table class="w-full text-sm whitespace-nowrap">
-                <thead class="bg-gray-700 text-gray-300 text-xs uppercase tracking-wider">
+                <thead class="bg-gray-700 text-gray-300 text-sm md:text-xs uppercase tracking-wider">
                 <tr>
                     <th class="px-4 py-2 text-left font-semibold">Stat</th>
                     <th class="px-4 py-2 text-right font-semibold">Solo</th>
@@ -203,66 +229,108 @@
                 <tbody class="divide-y divide-gray-700/40">
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-4 py-2 text-gray-400 font-medium">Rounds Played</td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${lifetimeGameModeStatsView?.solo?.roundsPlayed ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${lifetimeGameModeStatsView?.soloFpp?.roundsPlayed ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${lifetimeGameModeStatsView?.duo?.roundsPlayed ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${lifetimeGameModeStatsView?.duoFpp?.roundsPlayed ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${lifetimeGameModeStatsView?.squad?.roundsPlayed ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${lifetimeGameModeStatsView?.squadFpp?.roundsPlayed ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${lifetimeGameModeStatsView?.solo?.roundsPlayed ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${lifetimeGameModeStatsView?.soloFpp?.roundsPlayed ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${lifetimeGameModeStatsView?.duo?.roundsPlayed ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${lifetimeGameModeStatsView?.duoFpp?.roundsPlayed ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${lifetimeGameModeStatsView?.squad?.roundsPlayed ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${lifetimeGameModeStatsView?.squadFpp?.roundsPlayed ?: 0}"></td>
                 </tr>
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-4 py-2 text-gray-400 font-medium">Kills</td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${lifetimeGameModeStatsView?.solo?.kills ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${lifetimeGameModeStatsView?.soloFpp?.kills ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${lifetimeGameModeStatsView?.duo?.kills ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${lifetimeGameModeStatsView?.duoFpp?.kills ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${lifetimeGameModeStatsView?.squad?.kills ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${lifetimeGameModeStatsView?.squadFpp?.kills ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${lifetimeGameModeStatsView?.solo?.kills ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${lifetimeGameModeStatsView?.soloFpp?.kills ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${lifetimeGameModeStatsView?.duo?.kills ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${lifetimeGameModeStatsView?.duoFpp?.kills ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${lifetimeGameModeStatsView?.squad?.kills ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${lifetimeGameModeStatsView?.squadFpp?.kills ?: 0}"></td>
                 </tr>
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-4 py-2 text-gray-400 font-medium">Wins</td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${lifetimeGameModeStatsView?.solo?.wins ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${lifetimeGameModeStatsView?.soloFpp?.wins ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${lifetimeGameModeStatsView?.duo?.wins ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${lifetimeGameModeStatsView?.duoFpp?.wins ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${lifetimeGameModeStatsView?.squad?.wins ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${lifetimeGameModeStatsView?.squadFpp?.wins ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${lifetimeGameModeStatsView?.solo?.wins ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${lifetimeGameModeStatsView?.soloFpp?.wins ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${lifetimeGameModeStatsView?.duo?.wins ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${lifetimeGameModeStatsView?.duoFpp?.wins ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${lifetimeGameModeStatsView?.squad?.wins ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${lifetimeGameModeStatsView?.squadFpp?.wins ?: 0}"></td>
                 </tr>
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-4 py-2 text-gray-400 font-medium">Damage Dealt</td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.solo?.damageDealt ?: 0, 1, 0)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.soloFpp?.damageDealt ?: 0, 1, 0)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.duo?.damageDealt ?: 0, 1, 0)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.duoFpp?.damageDealt ?: 0, 1, 0)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.squad?.damageDealt ?: 0, 1, 0)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.squadFpp?.damageDealt ?: 0, 1, 0)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.solo?.damageDealt ?: 0, 1, 0)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.soloFpp?.damageDealt ?: 0, 1, 0)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.duo?.damageDealt ?: 0, 1, 0)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.duoFpp?.damageDealt ?: 0, 1, 0)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.squad?.damageDealt ?: 0, 1, 0)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.squadFpp?.damageDealt ?: 0, 1, 0)}"></td>
                 </tr>
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-4 py-2 text-gray-400 font-medium">Top 10s</td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${lifetimeGameModeStatsView?.solo?.top10s ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${lifetimeGameModeStatsView?.soloFpp?.top10s ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${lifetimeGameModeStatsView?.duo?.top10s ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${lifetimeGameModeStatsView?.duoFpp?.top10s ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${lifetimeGameModeStatsView?.squad?.top10s ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${lifetimeGameModeStatsView?.squadFpp?.top10s ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${lifetimeGameModeStatsView?.solo?.top10s ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${lifetimeGameModeStatsView?.soloFpp?.top10s ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${lifetimeGameModeStatsView?.duo?.top10s ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${lifetimeGameModeStatsView?.duoFpp?.top10s ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${lifetimeGameModeStatsView?.squad?.top10s ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${lifetimeGameModeStatsView?.squadFpp?.top10s ?: 0}"></td>
                 </tr>
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-4 py-2 text-gray-400 font-medium">K/D</td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.solo?.kd ?: 0, 1, 2)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.soloFpp?.kd ?: 0, 1, 2)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.duo?.kd ?: 0, 1, 2)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.duoFpp?.kd ?: 0, 1, 2)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.squad?.kd ?: 0, 1, 2)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.squadFpp?.kd ?: 0, 1, 2)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.solo?.kd ?: 0, 1, 2)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.soloFpp?.kd ?: 0, 1, 2)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.duo?.kd ?: 0, 1, 2)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.duoFpp?.kd ?: 0, 1, 2)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.squad?.kd ?: 0, 1, 2)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.squadFpp?.kd ?: 0, 1, 2)}"></td>
                 </tr>
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-4 py-2 text-gray-400 font-medium">Dmg / Round</td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.solo?.dmgPerRound ?: 0, 1, 1)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.soloFpp?.dmgPerRound ?: 0, 1, 1)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.duo?.dmgPerRound ?: 0, 1, 1)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.duoFpp?.dmgPerRound ?: 0, 1, 1)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.squad?.dmgPerRound ?: 0, 1, 1)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.squadFpp?.dmgPerRound ?: 0, 1, 1)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.solo?.dmgPerRound ?: 0, 1, 1)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.soloFpp?.dmgPerRound ?: 0, 1, 1)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.duo?.dmgPerRound ?: 0, 1, 1)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.duoFpp?.dmgPerRound ?: 0, 1, 1)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.squad?.dmgPerRound ?: 0, 1, 1)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(lifetimeGameModeStatsView?.squadFpp?.dmgPerRound ?: 0, 1, 1)}"></td>
                 </tr>
                 </tbody>
             </table>
@@ -270,17 +338,19 @@
     </div>
 
     <!-- Season Stats by Game Mode -->
-    <div th:if="${latestSeasonStats != null}" class="panel bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+    <div th:if="${latestSeasonStats != null}"
+         class="bg-[#151f30] border-[#2a3b53] rounded-[.85rem] shadow-[0_12px_30px_rgba(0,0,0,.12)] [&>div.border-b]:border-[#2a3b53] border overflow-hidden">
         <div class="px-5 py-3 border-b border-gray-700">
             <h2 class="font-semibold text-gray-100">
                 Season Stats by Game Mode
                 <span class="text-gray-400 text-sm font-normal ml-2" th:text="${latestSeasonId}"></span>
             </h2>
         </div>
-        <p class="table-hint">Scroll sideways to see all game modes →</p>
-        <div class="overflow-x-auto" tabindex="0" role="region" aria-label="Season statistics by game mode, scroll horizontally">
+        <p class="block px-4 py-2 text-sm text-[#a4b4c9] md:hidden">Scroll sideways to see all game modes →</p>
+        <div class="overflow-x-auto" tabindex="0" role="region"
+             aria-label="Season statistics by game mode, scroll horizontally">
             <table class="w-full text-sm whitespace-nowrap">
-                <thead class="bg-gray-700 text-gray-300 text-xs uppercase tracking-wider">
+                <thead class="bg-gray-700 text-gray-300 text-sm md:text-xs uppercase tracking-wider">
                 <tr>
                     <th class="px-4 py-2 text-left font-semibold">Stat</th>
                     <th class="px-4 py-2 text-right font-semibold">Solo</th>
@@ -294,66 +364,108 @@
                 <tbody class="divide-y divide-gray-700/40">
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-4 py-2 text-gray-400 font-medium">Rounds Played</td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${seasonGameModeStatsView?.solo?.roundsPlayed ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${seasonGameModeStatsView?.soloFpp?.roundsPlayed ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${seasonGameModeStatsView?.duo?.roundsPlayed ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${seasonGameModeStatsView?.duoFpp?.roundsPlayed ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${seasonGameModeStatsView?.squad?.roundsPlayed ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${seasonGameModeStatsView?.squadFpp?.roundsPlayed ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${seasonGameModeStatsView?.solo?.roundsPlayed ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${seasonGameModeStatsView?.soloFpp?.roundsPlayed ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${seasonGameModeStatsView?.duo?.roundsPlayed ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${seasonGameModeStatsView?.duoFpp?.roundsPlayed ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${seasonGameModeStatsView?.squad?.roundsPlayed ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${seasonGameModeStatsView?.squadFpp?.roundsPlayed ?: 0}"></td>
                 </tr>
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-4 py-2 text-gray-400 font-medium">Kills</td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${seasonGameModeStatsView?.solo?.kills ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${seasonGameModeStatsView?.soloFpp?.kills ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${seasonGameModeStatsView?.duo?.kills ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${seasonGameModeStatsView?.duoFpp?.kills ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${seasonGameModeStatsView?.squad?.kills ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${seasonGameModeStatsView?.squadFpp?.kills ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${seasonGameModeStatsView?.solo?.kills ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${seasonGameModeStatsView?.soloFpp?.kills ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${seasonGameModeStatsView?.duo?.kills ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${seasonGameModeStatsView?.duoFpp?.kills ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${seasonGameModeStatsView?.squad?.kills ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${seasonGameModeStatsView?.squadFpp?.kills ?: 0}"></td>
                 </tr>
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-4 py-2 text-gray-400 font-medium">Wins</td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${seasonGameModeStatsView?.solo?.wins ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${seasonGameModeStatsView?.soloFpp?.wins ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${seasonGameModeStatsView?.duo?.wins ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${seasonGameModeStatsView?.duoFpp?.wins ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${seasonGameModeStatsView?.squad?.wins ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${seasonGameModeStatsView?.squadFpp?.wins ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${seasonGameModeStatsView?.solo?.wins ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${seasonGameModeStatsView?.soloFpp?.wins ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${seasonGameModeStatsView?.duo?.wins ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${seasonGameModeStatsView?.duoFpp?.wins ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${seasonGameModeStatsView?.squad?.wins ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${seasonGameModeStatsView?.squadFpp?.wins ?: 0}"></td>
                 </tr>
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-4 py-2 text-gray-400 font-medium">Damage Dealt</td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.solo?.damageDealt ?: 0, 1, 0)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.soloFpp?.damageDealt ?: 0, 1, 0)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.duo?.damageDealt ?: 0, 1, 0)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.duoFpp?.damageDealt ?: 0, 1, 0)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.squad?.damageDealt ?: 0, 1, 0)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.squadFpp?.damageDealt ?: 0, 1, 0)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.solo?.damageDealt ?: 0, 1, 0)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.soloFpp?.damageDealt ?: 0, 1, 0)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.duo?.damageDealt ?: 0, 1, 0)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.duoFpp?.damageDealt ?: 0, 1, 0)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.squad?.damageDealt ?: 0, 1, 0)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.squadFpp?.damageDealt ?: 0, 1, 0)}"></td>
                 </tr>
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-4 py-2 text-gray-400 font-medium">Top 10s</td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${seasonGameModeStatsView?.solo?.top10s ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${seasonGameModeStatsView?.soloFpp?.top10s ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${seasonGameModeStatsView?.duo?.top10s ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${seasonGameModeStatsView?.duoFpp?.top10s ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${seasonGameModeStatsView?.squad?.top10s ?: 0}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${seasonGameModeStatsView?.squadFpp?.top10s ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${seasonGameModeStatsView?.solo?.top10s ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${seasonGameModeStatsView?.soloFpp?.top10s ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${seasonGameModeStatsView?.duo?.top10s ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${seasonGameModeStatsView?.duoFpp?.top10s ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${seasonGameModeStatsView?.squad?.top10s ?: 0}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${seasonGameModeStatsView?.squadFpp?.top10s ?: 0}"></td>
                 </tr>
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-4 py-2 text-gray-400 font-medium">K/D</td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.solo?.kd ?: 0, 1, 2)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.soloFpp?.kd ?: 0, 1, 2)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.duo?.kd ?: 0, 1, 2)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.duoFpp?.kd ?: 0, 1, 2)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.squad?.kd ?: 0, 1, 2)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.squadFpp?.kd ?: 0, 1, 2)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.solo?.kd ?: 0, 1, 2)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.soloFpp?.kd ?: 0, 1, 2)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.duo?.kd ?: 0, 1, 2)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.duoFpp?.kd ?: 0, 1, 2)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.squad?.kd ?: 0, 1, 2)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.squadFpp?.kd ?: 0, 1, 2)}"></td>
                 </tr>
                 <tr class="hover:bg-gray-700/30 transition-colors">
                     <td class="px-4 py-2 text-gray-400 font-medium">Dmg / Round</td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.solo?.dmgPerRound ?: 0, 1, 1)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.soloFpp?.dmgPerRound ?: 0, 1, 1)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.duo?.dmgPerRound ?: 0, 1, 1)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.duoFpp?.dmgPerRound ?: 0, 1, 1)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.squad?.dmgPerRound ?: 0, 1, 1)}"></td>
-                    <td class="px-4 py-2 text-gray-200 text-right" th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.squadFpp?.dmgPerRound ?: 0, 1, 1)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.solo?.dmgPerRound ?: 0, 1, 1)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.soloFpp?.dmgPerRound ?: 0, 1, 1)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.duo?.dmgPerRound ?: 0, 1, 1)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.duoFpp?.dmgPerRound ?: 0, 1, 1)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.squad?.dmgPerRound ?: 0, 1, 1)}"></td>
+                    <td class="px-4 py-2 text-gray-200 text-right"
+                        th:text="${#numbers.formatDecimal(seasonGameModeStatsView?.squadFpp?.dmgPerRound ?: 0, 1, 1)}"></td>
                 </tr>
                 </tbody>
             </table>
@@ -361,15 +473,17 @@
     </div>
 
     <!-- Matches List -->
-    <div class="panel bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+    <div class="bg-[#151f30] border-[#2a3b53] rounded-[.85rem] shadow-[0_12px_30px_rgba(0,0,0,.12)] [&>div.border-b]:border-[#2a3b53] border overflow-hidden">
         <div class="px-5 py-3 border-b border-gray-700">
             <h2 class="font-semibold text-gray-100">Matches</h2>
         </div>
-        <div th:if="${#lists.isEmpty(matches)}" class="px-5 py-4 text-gray-500 text-sm">No matches loaded yet.</div>
-        <p th:if="${!#lists.isEmpty(matches)}" class="table-hint">Scroll sideways to see all columns →</p>
-        <div th:if="${!#lists.isEmpty(matches)}" class="overflow-auto max-h-[500px]" tabindex="0" role="region" aria-label="Matches, scroll horizontally for more columns">
+        <div th:if="${#lists.isEmpty(matches)}" class="px-5 py-4 text-[#9aabc0] text-sm">No matches loaded yet.</div>
+        <p th:if="${!#lists.isEmpty(matches)}" class="block px-4 py-2 text-sm text-[#a4b4c9] md:hidden">Scroll sideways
+            to see all columns →</p>
+        <div th:if="${!#lists.isEmpty(matches)}" class="overflow-auto max-h-[500px]" tabindex="0" role="region"
+             aria-label="Matches, scroll horizontally for more columns">
             <table class="min-w-full text-sm whitespace-nowrap">
-                <thead class="sticky top-0 z-10 bg-gray-700 text-gray-300 text-xs uppercase tracking-wider">
+                <thead class="sticky top-0 z-10 bg-gray-700 text-gray-300 text-sm md:text-xs uppercase tracking-wider">
                 <tr>
                     <th class="px-4 py-2 text-left font-semibold">Date</th>
                     <th class="px-4 py-2 text-left font-semibold">Place</th>
@@ -383,7 +497,7 @@
                 </thead>
                 <tbody class="divide-y divide-gray-700/40">
                 <tr th:each="match : ${matches}" class="bg-gray-800/40 hover:bg-gray-700/40 transition-colors">
-                    <td class="px-4 py-2 text-gray-400 text-xs">
+                    <td class="px-4 py-2 text-gray-400 text-sm md:text-xs">
                         <time th:replace="~{fragments/timestamps :: timestamp(${match.createdAt}, false)}"></time>
                     </td>
                     <td class="px-4 py-2 text-gray-200 font-medium" th:text="${match.placeTaken}"></td>
@@ -394,7 +508,7 @@
                     <td class="px-4 py-2 text-gray-400" th:text="${match.botCount}"></td>
                     <td class="px-4 py-2">
                         <a th:href="@{/players/{aid}/matches/{mid}(aid=${player.accountId},mid=${match.matchId})}"
-                           class="px-2 py-1 bg-gray-700 hover:bg-gray-600 text-gray-200 text-xs rounded transition-colors">
+                           class="px-2 py-1 bg-gray-700 hover:bg-gray-600 text-gray-200 text-sm md:text-xs rounded transition-colors">
                             View
                         </a>
                     </td>

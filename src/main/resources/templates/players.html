@@ -5,60 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Pubgity - Players</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" th:href="@{/css/app.css}" href="/css/app.css">
 </head>
-<body class="bg-gray-950 text-gray-100 min-h-screen">
+<body class="min-h-screen bg-[#080e19] bg-[radial-gradient(ellipse_at_50%_-20%,#193657_0%,#0b1321_45%,#080e19_100%)] bg-fixed font-sans text-gray-100 [color-scheme:dark] [&_*:focus-visible]:!outline [&_*:focus-visible]:!outline-2 [&_*:focus-visible]:!outline-offset-[3px] [&_*:focus-visible]:!outline-blue-300">
 
 <div th:replace="~{fragments/nav :: nav}"></div>
 
-<main id="main-content" class="max-w-4xl mx-auto px-4 py-8">
-    <div class="page-heading mb-6">
-        <p class="eyebrow">Player directory</p>
+<main id="main-content"
+      class="max-w-4xl mx-auto px-4 pt-6 pb-12 md:pt-10 md:pb-16 [overflow-wrap:anywhere] [&_h1]:tracking-tight [&_h2]:tracking-tight">
+    <div class="rounded-2xl border border-[#2a3b53] bg-[linear-gradient(115deg,rgba(37,99,235,.18),rgba(21,31,48,.9)_60%)] p-5 md:p-6 mb-6">
+        <p class="mb-2 text-xs font-bold uppercase tracking-[.12em] text-blue-300">Player directory</p>
         <h1 class="text-3xl font-bold text-white">PUBG Player Stats</h1>
         <p class="text-gray-400 mt-2">Find a player and explore their match history and performance.</p>
     </div>
 
     <!-- Filter -->
-    <form method="get" th:action="@{/players}" class="mobile-form flex gap-2 mb-6">
+    <form method="get" th:action="@{/players}" class="flex-wrap md:flex-nowrap flex gap-2 mb-6">
         <input type="text" name="filter" th:value="${filter}"
                aria-label="Search player name"
                placeholder="Search player name..."
-               class="flex-1 bg-gray-800 border border-gray-600 text-gray-100 rounded px-3 py-2 text-sm
-                      focus:outline-none focus:border-blue-500 placeholder-gray-500">
+               class="max-md:w-full max-md:basis-full min-w-0 min-h-[44px] md:min-h-0 flex-1 bg-gray-800 border border-gray-600 text-gray-100 rounded px-3 py-2 text-base md:text-sm focus:outline-none focus:border-blue-500 placeholder-[#9aabc0]">
         <button type="submit"
-                class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm rounded transition-colors">
+                class="min-h-[44px] md:min-h-0 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm rounded transition-colors">
             Search
         </button>
         <a href="/players"
-           class="action px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 text-sm rounded transition-colors">
+           class="inline-flex min-h-[44px] items-center justify-center md:min-h-0 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 text-sm rounded transition-colors">
             Clear
         </a>
     </form>
 
     <!-- Player List -->
-    <div class="player-list overflow-y-auto max-h-[70vh] rounded border border-gray-800">
+    <div class="rounded-[.85rem] border-[#2a3b53] overflow-y-auto max-h-[70vh] border">
         <div class="flex flex-col gap-px">
             <a th:each="player : ${players}"
                th:if="${player.id != null}"
                th:href="@{/players/{id}(id=${player.accountId})}"
-               class="flex items-center justify-between px-4 py-3 bg-gray-800 hover:bg-gray-700
-                  border-b border-gray-700/50 transition-colors group">
-                <span class="flex items-center gap-2">
-                    <span th:text="${player.playerName}" class="font-medium text-gray-100 group-hover:text-white"></span>
+               class="flex min-h-[60px] items-center justify-between gap-3 px-4 py-3 bg-[#151f30] hover:bg-[#1b293e] border-b border-gray-700/50 transition-colors group">
+                <span class="flex min-w-0 flex-wrap items-center gap-2 [overflow-wrap:anywhere]">
+                    <span th:text="${player.playerName}"
+                          class="font-medium text-gray-100 group-hover:text-white"></span>
                     <span th:if="${player.isPrivacyProtected}"
                           title="This player's profile is privacy protected; lifetime/season stats are unavailable."
-                          class="text-xs px-2 py-0.5 bg-amber-900/60 text-amber-300 rounded-full">
+                          class="text-sm md:text-xs px-2 py-0.5 bg-amber-900/60 text-amber-300 rounded-full">
                         🔒 Privacy Protected
                     </span>
                 </span>
-                <span class="text-xs px-2 py-1 bg-gray-700 group-hover:bg-gray-600 text-gray-400 rounded-full">
+                <span class="shrink-0 text-sm md:text-xs px-2 py-1 bg-gray-700 group-hover:bg-gray-600 text-gray-400 rounded-full">
                 <span th:text="${#sets.size(player.matches.matchIds)}"></span> matches
             </span>
             </a>
         </div>
     </div>
 
-    <p th:if="${#lists.isEmpty(players)}" class="text-gray-500 mt-6 text-center">
+    <p th:if="${#lists.isEmpty(players)}" class="text-[#9aabc0] mt-6 text-center">
         No players found.
         <span th:if="${filter != null && !filter.isEmpty()}">Try a different search.</span>
     </p>
