@@ -52,7 +52,11 @@ data class MatchDetailView(
     val mapName: String,
     val duration: Int,
     val botCount: Int
-)
+) {
+    val durationLabel: String get() = formatMatchDuration(duration)
+}
+
+fun formatMatchDuration(seconds: Int): String = "${seconds / 60}m ${seconds % 60}s"
 
 data class ParticipantView(
     val accountId: String,

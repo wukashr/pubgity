@@ -1,27 +1,17 @@
 package org.traanite.pubgity.view
 
-import org.bson.types.ObjectId
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
-import org.traanite.pubgity.player.PlayerService
-import org.traanite.pubgity.user.AppUserService
 
 @Controller
 @RequestMapping("/admin")
-class AdminController(
-    private val appUserService: AppUserService,
-    private val playerService: PlayerService
-) {
-    companion object {
-        private val logger = LoggerFactory.getLogger(AdminController::class.java)
-    }
-
+class AdminController(private val views: AdminViewService) {
     @GetMapping("/users")
     fun listUsers(model: Model): String {
-        model.addAttribute("users", appUserService.findAll())
-        model.addAttribute("players", playerService.findAll())
+        val view = views.listUsers()
+        model.addAttribute("users", view.users)
+        model.addAttribute("players", view.players)
         return "admin/users"
     }
 
@@ -32,10 +22,7 @@ class AdminController(
         @RequestParam(defaultValue = "5") maxQueueSize: Int,
         @RequestParam(required = false) allowedPlayerIds: List<String>?
     ): String {
-        val playerIds = allowedPlayerIds?.map { ObjectId(it) }?.toSet() ?: emptySet()
-        appUserService.updateModeratorConstraints(ObjectId(id), playerIds, maxQueueSize)
-        logger.info("Admin updated moderator constraints for user {}: players={}, maxQueue={}", id, playerIds.size, maxQueueSize)
+        views.updateModeratorConstraints(id, allowedPlayerIds, maxQueueSize)
         return "redirect:/admin/users"
     }
 }
-

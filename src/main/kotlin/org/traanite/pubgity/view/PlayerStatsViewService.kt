@@ -24,6 +24,17 @@ class PlayerStatsViewService(
         private val logger = LoggerFactory.getLogger(PlayerStatsViewService::class.java)
     }
 
+    fun list(filter: String?): PlayerListView {
+        val players = if (filter.isNullOrBlank()) playerService.findAll() else playerService.searchByPlayerName(filter)
+        logger.debug("Player list: filter='{}', found {} players", filter ?: "", players.size)
+        return PlayerListView(players.sortedByDescending { it.matches.matchIds.size }, filter ?: "")
+    }
+
+    fun setPrivacyProtected(accountId: String, isPrivacyProtected: Boolean) {
+        playerService.setPrivacyProtected(accountId, isPrivacyProtected)
+        logger.info("Admin set isPrivacyProtected={} for accountId={}", isPrivacyProtected, accountId)
+    }
+
     fun detailByAccountId(accountId: String): PlayerDetailStatsView {
         val player = findPlayer(accountId)
         return detail(player) ?: throw ResponseStatusException(
@@ -31,6 +42,7 @@ class PlayerStatsViewService(
         )
     }
 
+    data class PlayerListView(val players: List<Player>, val filter: String)
     fun detail(player: Player): PlayerDetailStatsView? {
         val accountId = player.accountId ?: run {
             logger.warn("Player '{}' has no accountId, cannot load stats", player.playerName)
@@ -120,4 +132,6 @@ data class PlayerMatchView(
     val botCount: Int = 0,
     val playerCount: Int,
     val placeTaken: Int
-)
+) {
+    val durationLabel: String get() = formatMatchDuration(duration)
+}
