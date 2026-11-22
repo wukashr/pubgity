@@ -22,22 +22,6 @@ class PlayerService(
 
     fun findById(id: ObjectId): Player? = playerRepository.findById(id).orElse(null)
 
-    fun getSeasonStatsByPlayer(accountIds: Set<String>): Map<String, Map<String, SeasonStats>> {
-        return playerRepository.findByAccountIdIn(accountIds)
-            .associate { player ->
-                val stats = player.seasonStats.stats
-                player.accountId!! to stats
-            }
-    }
-
-    fun getLatestLifetimeStatsByPlayer(accountIds: Set<String>): Map<String, PlayerLifetimeStatsSnapshot?> {
-        return playerRepository.findByAccountIdIn(accountIds)
-            .associate { player ->
-                val stats = player.lifetimeStats.latestSnapshot
-                player.accountId!! to stats
-            }
-    }
-
     fun getByAccountIds(accountIds: Set<String>): Map<String, Player> {
         return playerRepository.findByAccountIdIn(accountIds)
             .associateBy { it.accountId!! }

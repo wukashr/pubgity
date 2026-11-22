@@ -74,6 +74,8 @@ class MatchDataFetcher(
             )
         }.filter { it.participants.isNotEmpty() }
 
+        // TODO: Detect and fail season-boundary mismatches when reliable match-season data is available.
+        //  for now no case where seasonState isn't "progress", monitor before making any changes
         val season =
             if (matchResponse.data.attributes.seasonState != null
                 && matchResponse.data.attributes.seasonState == "progress"

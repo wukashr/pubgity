@@ -22,11 +22,8 @@ class MatchService(
     }
 
     fun saveMatch(match: Match): Match {
-        val existing = matchRepository.findByMatchId(match.matchId)
-        val toSave = if (existing != null) match.copy(id = existing.id) else match
-        val saved = matchRepository.save(toSave)
+        val saved = matchRepository.insert(match)
         logger.debug("Saved match {} with {} rosters", saved.matchId, saved.rosters.size)
         return saved
     }
 }
-

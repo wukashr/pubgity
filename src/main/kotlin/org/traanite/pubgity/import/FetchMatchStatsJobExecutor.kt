@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service
 import org.traanite.pubgity.match.*
 import org.traanite.pubgity.player.PlayerService
 import org.traanite.pubgity.player.PlayerStatsUpdater
+import org.traanite.pubgity.player.StatsSnapshotService
 import org.traanite.pubgity.player.StatsUpdateResult
-import org.traanite.pubgity.pubgapi.toParticipantLifetimeStats
 
 @Service
 class FetchMatchStatsJobExecutor(
@@ -16,7 +16,8 @@ class FetchMatchStatsJobExecutor(
     private val playerService: PlayerService,
     private val matchService: MatchService,
     private val matchDataFetcher: MatchDataFetcher,
-    private val playerStatsUpdater: PlayerStatsUpdater
+    private val playerStatsUpdater: PlayerStatsUpdater,
+    private val snapshots: StatsSnapshotService
 ) : BaseImportJobExecutor(jobRepository, JobType.FETCH_MATCH_STATS) {
 
     companion object {
@@ -43,9 +44,10 @@ class FetchMatchStatsJobExecutor(
         val jobId = job.id!!
         ensureMatchNotExists(jobId, job.matchId!!)
         val newMatch = collectNewMatchMetadata(jobId, job.matchId)
+        val seasonId = requireNotNull(newMatch.seasonId) { "No season ID for match ${newMatch.matchId}" }
         val participants = collectParticipants(jobId, newMatch)
         fetchLifetimeStats(jobId, participants)
-        fetchCurrentSeasonStats(jobId, participants)
+        fetchSeasonStats(jobId, participants, seasonId)
         saveMatchSnapshot(jobId, newMatch)
     }
 
@@ -100,7 +102,7 @@ class FetchMatchStatsJobExecutor(
         )
     }
 
-    private fun fetchCurrentSeasonStats(jobId: ObjectId, participants: Set<SimpleParticipant>) {
+    private fun fetchSeasonStats(jobId: ObjectId, participants: Set<SimpleParticipant>, seasonId: String) {
         var fetched = 0
         var skipped = 0
         var privacyProtected = 0
@@ -111,7 +113,7 @@ class FetchMatchStatsJobExecutor(
             updateProgress(jobId, progress)
 
             val updateResult =
-                playerStatsUpdater.updateCurrentSeasonPlayerStats(participant.accountId, participant.playerName)
+                playerStatsUpdater.updateSeasonPlayerStats(participant.accountId, participant.playerName, seasonId)
             when (updateResult) {
                 StatsUpdateResult.UPDATED -> fetched++
                 StatsUpdateResult.SKIPPED -> skipped++
@@ -135,6 +137,7 @@ class FetchMatchStatsJobExecutor(
     }
 
     private fun saveMatchSnapshot(fetchedMatch: FetchedMatch) {
+        val seasonId = requireNotNull(fetchedMatch.seasonId) { "No season ID for match ${fetchedMatch.matchId}" }
         val participantsAccountIds =
             fetchedMatch.rosters.flatMap { roster -> roster.participants.map { it.accountId } }.toSet()
 
@@ -142,13 +145,24 @@ class FetchMatchStatsJobExecutor(
 
         val rosterSnapshots = fetchedMatch.rosters.map { roster ->
             val participantSnapshots = roster.participants.map { participant ->
-                val knownPlayer = participatingPlayers[participant.accountId]
+                val knownPlayer = checkNotNull(participatingPlayers[participant.accountId]) {
+                    "Player ${participant.accountId} is missing after stats refresh"
+                }
+                val lifetime = if (knownPlayer.isPrivacyProtected) null else
+                    checkNotNull(snapshots.closestLifetime(participant.accountId, fetchedMatch.createdAt)) {
+                        "Lifetime snapshot missing for ${participant.accountId}"
+                    }
+                val season = if (knownPlayer.isPrivacyProtected) null else
+                    checkNotNull(snapshots.closestSeason(participant.accountId, seasonId, fetchedMatch.createdAt)) {
+                        "Season $seasonId snapshot missing for ${participant.accountId}"
+                    }
                 MatchParticipant(
                     accountId = participant.accountId,
                     playerName = participant.playerName,
                     matchStats = participant.matchStats,
-                    lifetimeStatsSnapshot = knownPlayer?.lifetimeStats?.latestSnapshot?.stats?.toParticipantLifetimeStats(),
-                    isPrivacyProtected = knownPlayer?.isPrivacyProtected ?: false
+                    lifetimeStatsSnapshotId = lifetime?.id,
+                    seasonStatsSnapshotId = season?.id,
+                    isPrivacyProtected = knownPlayer.isPrivacyProtected
                 )
             }
             MatchRoster(
@@ -176,4 +190,3 @@ class FetchMatchStatsJobExecutor(
         }
     }
 }
-

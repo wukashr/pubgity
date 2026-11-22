@@ -1,10 +1,10 @@
 package org.traanite.pubgity.view
 
+import org.bson.types.ObjectId
 import org.junit.jupiter.api.Test
 import org.traanite.pubgity.match.Match
 import org.traanite.pubgity.match.MatchParticipant
 import org.traanite.pubgity.match.MatchParticipantStats
-import org.traanite.pubgity.match.ParticipantLifetimeStats
 import org.traanite.pubgity.view.aggregation.AggregatedParticipantStats
 import tools.jackson.databind.json.JsonMapper
 import java.time.Instant
@@ -17,7 +17,7 @@ class MatchViewMappersTest {
         accountId = "account.test",
         playerName = "TestPlayer",
         matchStats = MatchParticipantStats(winPlace = 2, kills = 3, damageDealt = 456.9),
-        lifetimeStatsSnapshot = ParticipantLifetimeStats(),
+        lifetimeStatsSnapshotId = ObjectId(),
         isPrivacyProtected = true
     )
 
@@ -69,7 +69,7 @@ class MatchViewMappersTest {
     @Test
     fun `preserves missing data defaults and snapshot presence independently of aggregate`() {
         val withoutStats = participant.copy(
-            matchStats = null, lifetimeStatsSnapshot = null, isPrivacyProtected = false
+            matchStats = null, lifetimeStatsSnapshotId = null, isPrivacyProtected = false
         )
         val expected = ParticipantView(
             accountId = "account.test",

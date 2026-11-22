@@ -42,7 +42,7 @@ fun MatchParticipant.toParticipantView(
     bestRankPoint = aggregatedStats?.bestRankPoint ?: 0.0,
     kd = aggregatedStats?.modeKD ?: 0.0,
     isPrivacyProtected = isPrivacyProtected,
-    hasLifetimeStats = lifetimeStatsSnapshot != null
+    hasLifetimeStats = lifetimeStatsSnapshotId != null
 )
 
 data class MatchDetailView(

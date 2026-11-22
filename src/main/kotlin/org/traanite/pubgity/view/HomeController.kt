@@ -36,7 +36,11 @@ class HomeController(
             return "home"
         }
 
-        playerStatsViewService.populateModel(player, model)
+        playerStatsViewService.detail(player)?.let { detail ->
+            model.addAttribute("player", detail.player)
+            model.addAttribute("matches", detail.matches)
+            model.addAttribute("playerAggregated", detail.playerAggregated)
+        }
         return "home"
     }
 }
