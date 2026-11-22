@@ -45,6 +45,23 @@ Production OIDC settings include `OIDC_ISSUER_URI`, `OIDC_CLIENT_ID`, and `OIDC_
 
 Deployment details and the GitHub Actions workflow are described in [DEPLOYMENT.md](DEPLOYMENT.md).
 
+## Match-time statistics
+
+Lifetime and season statistics are captured as immutable MongoDB snapshots. During match import,
+the existing `pubg.player.stats-ttl` controls whether current stats are fetched or reused. After
+refreshing, the importer assigns each non-private participant the available lifetime and
+matching-season snapshots closest to the match time, including captures after the match. The
+chosen snapshot IDs are fixed in the match, so later refreshes do not change its charts or table.
+Privacy-protected participants can have unavailable stats. Imports fail if the season or a required
+snapshot is missing.
+
+Snapshots are approximations: a capture may be far from the match and the API does not expose
+historical lifetime values. The match API does not identify its season.
+
+Currently, API seems to expose at most 2 weeks of matches only within one season. Import assumes all matches are from the current season, otherwise fails import. Further testing required to determine if this is a hard limit or just didn't show up yet.
+
+Referenced snapshots of stats must not be modified, expired, or deleted.
+
 ## Tests
 
 ```bash

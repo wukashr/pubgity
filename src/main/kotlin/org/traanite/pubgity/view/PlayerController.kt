@@ -42,19 +42,32 @@ class PlayerController(
         if (accountId.isBlank()) {
             return "players"
         }
-        playerStatsViewService.populateModelByAccountId(accountId, model)
+        val detail = playerStatsViewService.detailByAccountId(accountId)
+        model.addAttribute("player", detail.player)
+        model.addAttribute("matches", detail.matches)
+        model.addAttribute("playerAggregated", detail.playerAggregated)
+        model.addAttribute("lifetimeGameModeStatsView", detail.lifetimeGameModeStatsView)
+        model.addAttribute("playerSeasonAggregated", detail.playerSeasonAggregated)
+        model.addAttribute("seasonGameModeStatsView", detail.seasonGameModeStatsView)
+        model.addAttribute("latestSeasonId", detail.latestSeasonStats?.seasonId)
+        model.addAttribute("latestSeasonStats", detail.latestSeasonStats)
+        model.addAttribute("latestStats", detail.latestStats)
         return "player-detail"
     }
 
     @GetMapping("/{accountId}/charts/lifetime")
     fun playerLifetimeCharts(@PathVariable accountId: String, model: Model): String {
-        playerStatsViewService.populateModelByAccountId(accountId, model)
+        val chart = playerStatsViewService.lifetimeChart(accountId)
+        model.addAttribute("player", chart.player)
+        model.addAttribute("perMatchStats", chart.perMatchStats)
         return "player-lifetime-charts"
     }
 
     @GetMapping("/{accountId}/charts/season")
     fun playerSeasonCharts(@PathVariable accountId: String, model: Model): String {
-        playerStatsViewService.populateModelByAccountId(accountId, model)
+        val chart = playerStatsViewService.seasonChart(accountId)
+        model.addAttribute("player", chart.player)
+        model.addAttribute("perMatchSeasonStats", chart.perMatchSeasonStats)
         return "player-season-charts"
     }
 
