@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/wukashr/pubgity/compare/v1.3.0...v1.4.0) (2026-11-22)
+
+
+### Features
+
+* multiple stats snapshots, view layer refactor, generated tests, jdk update ([ed81adc](https://github.com/wukashr/pubgity/commit/ed81adc5ed87bb1638d713d01efa2a4f77df7e56))
+
 ## [1.3.0](https://github.com/wukashr/pubgity/compare/v1.2.2...v1.3.0) (2026-11-21)
 
 
