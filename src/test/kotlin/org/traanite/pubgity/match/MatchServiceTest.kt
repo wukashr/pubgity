@@ -15,11 +15,22 @@ class MatchServiceTest : MongoRepositoryTest() {
     @Test
     fun `match save uses insert and never replaces an existing match`() {
         val service = MatchService(repository)
-        val match = Match(matchId = "m", createdAt = Instant.EPOCH, seasonId = "s", gameMode = "solo",
-            mapName = "x", duration = 1, telemetryFileUri = null)
-        val saved = service.saveMatch(match)
-        assertEquals(match.matchId, saved.matchId)
-        assertFailsWith<DuplicateKeyException> { service.saveMatch(match) }
-        assertEquals(saved, repository.findByMatchId(match.matchId))
+        val match = Match(
+            matchId = "m",
+            createdAt = Instant.EPOCH,
+            seasonId = "s",
+            gameMode = "solo",
+            mapName = "x",
+            duration = 1,
+            telemetryFileUri = null
+        )
+        val savedMatch = service.saveMatch(match)
+        val replacement = savedMatch.copy(duration = 99)
+        val duplicateMatchId = match.copy(duration = 99)
+
+        assertFailsWith<DuplicateKeyException> { service.saveMatch(replacement) }
+        assertFailsWith<DuplicateKeyException> { service.saveMatch(duplicateMatchId) }
+        val actual = repository.findByMatchId(match.matchId)
+        assertEquals(savedMatch, actual)
     }
 }

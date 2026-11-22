@@ -72,4 +72,5 @@ Start Docker before running the tests:
 
 Testcontainers starts an isolated MongoDB instance for repository tests and cleans it up afterward.
 No running application database or MongoDB connection environment variable is needed. The test
-suite fails if Docker is unavailable.
+suite fails if Docker is unavailable. The test profile disables scheduled import jobs so tests can
+drive job processing deterministically.

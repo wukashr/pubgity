@@ -31,10 +31,9 @@ class PubgityApplicationTests {
     @Test
     fun contextLoads() {
         mongo.db.runCommand(Document("ping", 1))
-        assertEquals(
-            ConnectionString(container.replicaSetUrl).hosts,
-            client.clusterDescription.serverDescriptions.map { it.address.toString() }
-        )
+        val expectedHosts = ConnectionString(container.replicaSetUrl).hosts
+        val actualHosts = client.clusterDescription.serverDescriptions.map { it.address.toString() }
+        assertEquals(expectedHosts, actualHosts)
     }
 
 }

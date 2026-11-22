@@ -33,7 +33,8 @@ class MatchLabelFormatterTest {
 
     @Test
     fun `unknown maps retain their identifier and log a warning`(output: CapturedOutput) {
-        assertEquals("Future_Main", formatter.mapName("Future_Main"))
+        val expected = "Future_Main"
+        assertEquals(expected, formatter.mapName("Future_Main"))
         assertTrue(output.out.contains("No display name configured for PUBG map 'Future_Main'"))
     }
 
