@@ -3,8 +3,10 @@
 >
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Pubgity - Jobs</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" th:href="@{/css/app.css}" href="/css/app.css">
     <script th:replace="~{fragments/timestamps :: script}"></script>
     <style>
         .ts-hidden .ts-col { display: none; }
@@ -18,18 +20,18 @@
 
 <div th:replace="~{fragments/nav :: nav}"></div>
 
-<main class="max-w-screen-2xl mx-auto px-4 py-8 space-y-8">
-    <h1 class="text-3xl font-bold text-white">Pubgity Jobs</h1>
+<main id="main-content" class="max-w-screen-2xl mx-auto px-4 py-8 space-y-8">
+    <div class="page-heading"><p class="eyebrow">Import management</p><h1 class="text-3xl font-bold text-white">Pubgity Jobs</h1></div>
 
     <!-- Flash error message -->
     <div th:if="${error}" class="bg-red-900/50 border border-red-700 text-red-300 rounded-lg px-5 py-3 text-sm"
          th:text="${error}"></div>
 
     <!-- Add Player (ADMIN only) -->
-    <div th:if="${canManagePlayers}" class="bg-gray-800 border border-gray-700 rounded-lg p-5">
+    <div th:if="${canManagePlayers}" class="panel bg-gray-800 border border-gray-700 rounded-lg p-5">
         <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Add Player to Watchlist</h2>
-        <form method="post" th:action="@{/jobs/players/add}" class="flex gap-2">
-            <input type="text" name="playerName" placeholder="Player name" required
+        <form method="post" th:action="@{/jobs/players/add}" class="mobile-form flex gap-2">
+            <input type="text" name="playerName" placeholder="Player name" aria-label="Player name" required
                    class="bg-gray-700 border border-gray-600 text-gray-100 rounded px-3 py-2 text-sm
                           focus:outline-none focus:border-blue-500 placeholder-gray-500 w-64">
             <button type="submit"
@@ -40,18 +42,18 @@
     </div>
 
     <!-- Match Download Job Queue -->
-    <div class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+    <div class="panel bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
         <div class="px-5 py-4 border-b border-gray-700 flex flex-wrap items-center justify-between gap-3">
             <div>
                 <h2 class="font-semibold text-gray-100">Match Download Job Queue</h2>
                 <p class="text-xs text-gray-500 mt-0.5">Multiple jobs can exist for one match — if match exists in DB, job will fail on startup</p>
             </div>
             <div class="flex flex-wrap items-center gap-4">
-                <input type="text" id="match-jobs-filter" placeholder="Filter…"
+                <input type="text" id="match-jobs-filter" placeholder="Filter…" aria-label="Filter match jobs"
                        oninput="applyFilters('match-jobs-table')"
                        class="bg-gray-700 border border-gray-600 text-gray-100 rounded px-3 py-1.5 text-xs
                               focus:outline-none focus:border-blue-500 placeholder-gray-500 w-44">
-                <select id="match-jobs-status" onchange="applyFilters('match-jobs-table')"
+                <select id="match-jobs-status" aria-label="Match job status" onchange="applyFilters('match-jobs-table')"
                         class="bg-gray-700 border border-gray-600 text-gray-100 rounded px-2 py-1.5 text-xs
                                focus:outline-none focus:border-blue-500">
                     <option value="">All statuses</option>
@@ -74,7 +76,8 @@
                 </label>
             </div>
         </div>
-        <div class="overflow-auto max-h-[500px]">
+        <p class="table-hint">Scroll sideways to see all columns →</p>
+        <div class="overflow-auto max-h-[500px]" tabindex="0" role="region" aria-label="Match jobs, scroll horizontally for more columns">
             <table id="match-jobs-table" class="min-w-full text-xs ts-hidden">
                     <thead class="sticky top-0 z-10 bg-gray-700 text-gray-300 uppercase tracking-wider">
                     <tr>
@@ -162,18 +165,18 @@
     </div>
 
     <!-- Fork Job Queue -->
-    <div class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+    <div class="panel bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
         <div class="px-5 py-4 border-b border-gray-700 flex flex-wrap items-center justify-between gap-3">
             <div>
                 <h2 class="font-semibold text-gray-100">Fork Job Queue</h2>
                 <p class="text-xs text-gray-500 mt-0.5">Takes N recent matches, then filters out existing ones</p>
             </div>
             <div class="flex flex-wrap items-center gap-4">
-                <input type="text" id="fork-jobs-filter" placeholder="Filter…"
+                <input type="text" id="fork-jobs-filter" placeholder="Filter…" aria-label="Filter fork jobs"
                        oninput="applyFilters('fork-jobs-table')"
                        class="bg-gray-700 border border-gray-600 text-gray-100 rounded px-3 py-1.5 text-xs
                               focus:outline-none focus:border-blue-500 placeholder-gray-500 w-44">
-                <select id="fork-jobs-status" onchange="applyFilters('fork-jobs-table')"
+                <select id="fork-jobs-status" aria-label="Fork job status" onchange="applyFilters('fork-jobs-table')"
                         class="bg-gray-700 border border-gray-600 text-gray-100 rounded px-2 py-1.5 text-xs
                                focus:outline-none focus:border-blue-500">
                     <option value="">All statuses</option>
@@ -196,7 +199,8 @@
                 </label>
             </div>
         </div>
-        <div class="overflow-auto max-h-[500px]">
+        <p class="table-hint">Scroll sideways to see all columns →</p>
+        <div class="overflow-auto max-h-[500px]" tabindex="0" role="region" aria-label="Fork jobs, scroll horizontally for more columns">
             <table id="fork-jobs-table" class="min-w-full text-xs ts-hidden">
                     <thead class="sticky top-0 z-10 bg-gray-700 text-gray-300 uppercase tracking-wider">
                     <tr>
@@ -268,7 +272,7 @@
     </div>
 
     <!-- Tracked Players -->
-    <div class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+    <div class="panel bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
         <div class="px-5 py-4 border-b border-gray-700 flex flex-wrap items-center justify-between gap-3">
             <div>
                 <h2 class="font-semibold text-gray-100">Tracked Players</h2>
@@ -278,11 +282,12 @@
                     Queue slots remaining: <span th:text="${moderatorMatchCountCap}" class="font-semibold"></span>
                 </p>
             </div>
-            <input type="text" id="players-filter" placeholder="Filter…" oninput="filterTable(this,'players-table')"
+            <input type="text" id="players-filter" placeholder="Filter…" aria-label="Filter tracked players" oninput="filterTable(this,'players-table')"
                    class="bg-gray-700 border border-gray-600 text-gray-100 rounded px-3 py-1.5 text-xs
                           focus:outline-none focus:border-blue-500 placeholder-gray-500 w-44">
         </div>
-        <div class="overflow-auto max-h-[500px]">
+        <p class="table-hint">Scroll sideways to see all columns →</p>
+        <div class="overflow-auto max-h-[500px]" tabindex="0" role="region" aria-label="Tracked players, scroll horizontally for more columns">
             <table id="players-table" class="min-w-full text-sm">
                     <thead class="sticky top-0 z-10 bg-gray-700 text-gray-300 text-xs uppercase tracking-wider">
                     <tr>

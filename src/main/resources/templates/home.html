@@ -2,18 +2,21 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Pubgity - Home</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" th:href="@{/css/app.css}" href="/css/app.css">
     <script th:replace="~{fragments/timestamps :: script}"></script>
 </head>
 <body class="bg-gray-950 text-gray-100 min-h-screen">
 
 <div th:replace="~{fragments/nav :: nav}"></div>
 
-<main class="max-w-4xl mx-auto px-4 py-8">
+<main id="main-content" class="max-w-4xl mx-auto px-4 py-8">
 
     <!-- Guest view -->
-    <div th:unless="${isAuthenticated}" class="flex flex-col items-center justify-center py-24 gap-6 text-center">
+    <div th:unless="${isAuthenticated}" class="home-hero flex flex-col items-center justify-center py-24 gap-6 text-center">
+        <p class="eyebrow">Your PUBG performance, in focus</p>
         <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-violet-600
                     flex items-center justify-center text-2xl font-bold text-white select-none">P</div>
         <h1 class="text-4xl font-bold text-white">Welcome to Pubgity</h1>
@@ -28,7 +31,8 @@
     </div>
 
     <!-- Authenticated, no linked player -->
-    <div th:if="${isAuthenticated and noLinkedPlayer == true}" class="flex flex-col items-center justify-center py-24 gap-6 text-center">
+    <div th:if="${isAuthenticated and noLinkedPlayer == true}" class="home-hero flex flex-col items-center justify-center py-24 gap-6 text-center">
+        <p class="eyebrow">Your dashboard</p>
         <h1 class="text-3xl font-bold text-white">Hey, <span th:text="${username}">player</span>!</h1>
         <p class="text-gray-400 max-w-md">
             Link your PUBG player name in your profile to see your personal stats right here.
@@ -44,18 +48,19 @@
 
     <!-- Authenticated with linked player — same stats layout as player-detail -->
     <div th:if="${player != null}">
-        <div class="flex items-center justify-between mb-6">
+        <div class="page-heading mobile-stack flex items-center justify-between mb-6">
             <div>
+                <p class="eyebrow">Your dashboard</p>
                 <h1 class="text-3xl font-bold text-white" th:text="${player.playerName}">Player</h1>
                 <p class="text-gray-500 text-sm mt-1" th:text="${player.accountId}"></p>
             </div>
             <div class="flex gap-2">
                 <a th:href="@{/players/{id}(id=${player.accountId})}"
-                   class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 text-sm rounded transition-colors">
+                   class="action px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 text-sm rounded transition-colors">
                     Full stats →
                 </a>
                 <a href="/profile"
-                   class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-400 text-sm rounded border border-gray-700 transition-colors">
+                   class="action px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-400 text-sm rounded border border-gray-700 transition-colors">
                     My profile
                 </a>
             </div>
@@ -63,19 +68,19 @@
 
         <!-- Quick stats summary -->
         <div th:if="${playerAggregated != null}" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-            <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 text-center">
+            <div class="panel bg-gray-800 border border-gray-700 rounded-lg p-4 text-center">
                 <div class="text-2xl font-bold text-white" th:text="${#numbers.formatDecimal(playerAggregated.kd, 1, 2)}">0.00</div>
                 <div class="text-xs text-gray-500 mt-1">Overall K/D</div>
             </div>
-            <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 text-center">
+            <div class="panel bg-gray-800 border border-gray-700 rounded-lg p-4 text-center">
                 <div class="text-2xl font-bold text-white" th:text="${playerAggregated.totalWins}">0</div>
                 <div class="text-xs text-gray-500 mt-1">Wins</div>
             </div>
-            <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 text-center">
+            <div class="panel bg-gray-800 border border-gray-700 rounded-lg p-4 text-center">
                 <div class="text-2xl font-bold text-white" th:text="${playerAggregated.totalRoundsPlayed}">0</div>
                 <div class="text-xs text-gray-500 mt-1">Rounds</div>
             </div>
-            <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 text-center">
+            <div class="panel bg-gray-800 border border-gray-700 rounded-lg p-4 text-center">
                 <div class="text-2xl font-bold text-white"
                      th:text="${#numbers.formatDecimal(playerAggregated.dmgPerRound, 1, 0)}">0</div>
                 <div class="text-xs text-gray-500 mt-1">Dmg / Round</div>
@@ -83,12 +88,13 @@
         </div>
 
         <!-- Recent matches -->
-        <div th:if="${not #lists.isEmpty(matches)}" class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+        <div th:if="${not #lists.isEmpty(matches)}" class="panel bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
             <div class="px-5 py-3 border-b border-gray-700">
                 <h2 class="font-semibold text-gray-100">Recent Matches</h2>
             </div>
-            <div class="overflow-y-auto max-h-[50vh]">
-                <table class="min-w-full text-sm">
+            <p class="table-hint">Scroll sideways to see all columns →</p>
+            <div class="overflow-auto max-h-[50vh]" tabindex="0" role="region" aria-label="Recent matches, scroll horizontally for more columns">
+                <table class="min-w-full text-sm whitespace-nowrap">
                     <thead class="sticky top-0 bg-gray-700 text-gray-300 text-xs uppercase">
                     <tr>
                         <th class="px-4 py-2 text-left">Map</th>
@@ -103,7 +109,10 @@
                         th:data-href="@{/players/{id}/matches/{mid}(id=${player.accountId},mid=${m.matchId})}"
                         onclick="window.location=this.dataset.href"
                         class="hover:bg-gray-700/50 cursor-pointer transition-colors">
-                        <td class="px-4 py-2.5 text-gray-200" th:text="${m.mapName}"></td>
+                        <td class="px-4 py-2.5 text-gray-200">
+                            <a class="text-blue-300 hover:text-white" th:href="@{/players/{id}/matches/{mid}(id=${player.accountId},mid=${m.matchId})}"
+                               th:text="${m.mapName}"></a>
+                        </td>
                         <td class="px-4 py-2.5 text-gray-400 text-xs" th:text="${m.gameMode}"></td>
                         <td class="px-4 py-2.5">
                             <span th:text="${m.placeTaken}"

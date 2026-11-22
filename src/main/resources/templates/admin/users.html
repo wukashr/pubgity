@@ -2,16 +2,18 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Pubgity - User Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" th:href="@{/css/app.css}" href="/css/app.css">
 </head>
 <body class="bg-gray-950 text-gray-100 min-h-screen">
 
 <div th:replace="~{fragments/nav :: nav}"></div>
 
-<main class="max-w-screen-xl mx-auto px-4 py-8 space-y-6">
-    <div class="flex flex-wrap items-end justify-between gap-3">
-        <h1 class="text-3xl font-bold text-white">User Management</h1>
+<main id="main-content" class="max-w-screen-xl mx-auto px-4 py-8 space-y-6">
+    <div class="page-heading flex flex-wrap items-end justify-between gap-3">
+        <div><p class="eyebrow">Administration</p><h1 class="text-3xl font-bold text-white">User Management</h1></div>
         <p class="text-sm text-gray-500">
             Roles are managed in your identity provider and synced here on every login.
         </p>
@@ -19,11 +21,11 @@
 
     <!-- User search -->
     <div class="relative max-w-sm">
-        <input id="userSearch" type="text" placeholder="Filter users by name or email…"
+        <input id="userSearch" type="text" placeholder="Filter users by name or email…" aria-label="Filter users by name or email"
                oninput="filterUsers()"
                class="w-full bg-gray-800 border border-gray-700 text-gray-100 rounded-lg px-4 py-2 text-sm
                       focus:outline-none focus:border-blue-500 placeholder-gray-500">
-        <button onclick="document.getElementById('userSearch').value=''; filterUsers();"
+        <button onclick="document.getElementById('userSearch').value=''; filterUsers();" aria-label="Clear user filter"
                 class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 text-lg leading-none hidden"
                 id="userSearchClear">✕</button>
     </div>
@@ -33,7 +35,7 @@
 
     <!-- User cards -->
     <div th:each="user : ${users}"
-         class="bg-gray-800 border border-gray-700 rounded-lg p-5 space-y-5 user-card"
+         class="panel bg-gray-800 border border-gray-700 rounded-lg p-5 space-y-5 user-card"
          th:data-username="${user.username}"
          th:data-email="${user.email}">
 
@@ -64,8 +66,8 @@
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
                 <div class="flex items-center gap-3">
-                    <label class="text-sm text-gray-400 w-32">Max queue size</label>
-                    <input type="number" name="maxQueueSize" min="1" max="50"
+                    <label class="text-sm text-gray-400 w-32" th:for="${'max-queue-' + user.id}">Max queue size</label>
+                    <input type="number" name="maxQueueSize" th:id="${'max-queue-' + user.id}" min="1" max="50"
                            th:value="${user.moderatorConstraints?.maxQueueSize ?: 5}"
                            class="w-20 bg-gray-700 border border-gray-600 text-gray-200 text-sm rounded px-2 py-1
                                   focus:outline-none focus:border-blue-500">
@@ -76,7 +78,7 @@
 
                     <!-- Player filter controls -->
                     <div class="flex flex-wrap items-center gap-3 mb-2" th:unless="${#lists.isEmpty(players)}">
-                        <input type="text" placeholder="Filter players…"
+                        <input type="text" placeholder="Filter players…" aria-label="Filter allowed players"
                                oninput="filterPlayers(this)"
                                class="bg-gray-700 border border-gray-600 text-gray-200 text-xs rounded px-3 py-1.5
                                       focus:outline-none focus:border-blue-500 placeholder-gray-500 w-48">
@@ -163,4 +165,3 @@
 </script>
 </body>
 </html>
-

@@ -3,8 +3,10 @@
 >
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="'Pubgity - ' + ${player.playerName} + ' · Season Charts'">Season Charts</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" th:href="@{/css/app.css}" href="/css/app.css">
     <script th:replace="~{fragments/timestamps :: script}"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 </head>
@@ -12,13 +14,14 @@
 
 <div th:replace="~{fragments/nav :: nav}"></div>
 
-<main class="max-w-screen-xl mx-auto px-4 py-8 space-y-6">
-    <div class="flex items-center justify-between">
+<main id="main-content" class="max-w-screen-xl mx-auto px-4 py-8 space-y-6">
+    <div class="page-heading mobile-stack flex items-center justify-between">
         <div>
             <a th:href="@{/players/{id}(id=${player.accountId})}"
                class="inline-flex items-center gap-1 text-gray-400 hover:text-gray-200 text-sm mb-2 transition-colors">
                 ← Back to <span th:text="${player.playerName}" class="text-gray-200"></span>
             </a>
+            <p class="eyebrow">Performance over time</p>
             <h1 class="text-2xl font-bold text-white">
                 Season Charts
                 <span class="text-gray-400 font-normal text-lg ml-2" th:text="${player.playerName}"></span>
@@ -28,7 +31,7 @@
             </p>
         </div>
         <a th:href="@{/players/{id}/charts/lifetime(id=${player.accountId})}"
-           class="px-3 py-2 bg-indigo-700 hover:bg-indigo-600 text-white text-sm rounded transition-colors">
+           class="action px-3 py-2 bg-indigo-700 hover:bg-indigo-600 text-white text-sm rounded transition-colors">
             ← Lifetime Charts
         </a>
     </div>
@@ -40,24 +43,24 @@
     </div>
 
     <div th:if="${#lists.isEmpty(perMatchSeasonStats) and !player.isPrivacyProtected}"
-         class="bg-gray-800 border border-gray-700 rounded-lg px-5 py-8 text-center text-gray-500">
+         class="panel bg-gray-800 border border-gray-700 rounded-lg px-5 py-8 text-center text-gray-500">
         No per-match season stats available yet.
     </div>
 
     <div th:if="${!#lists.isEmpty(perMatchSeasonStats) and !player.isPrivacyProtected}" class="space-y-6">
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="seasonKillsChart"></canvas></div>
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="seasonDamageChart"></canvas></div>
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="seasonDmgPerRoundLifetimeChart"></canvas></div>
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="seasonDmgPerRoundModeChart"></canvas></div>
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="seasonDmgPerMinuteLifetimeChart"></canvas></div>
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="seasonDmgPerMinuteModeChart"></canvas></div>
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="seasonKDChart"></canvas></div>
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="seasonTimeSurvivedChart"></canvas></div>
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="seasonWinsChart"></canvas></div>
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="seasonRoundsChart"></canvas></div>
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="seasonHSKillsChart"></canvas></div>
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="seasonTop10sChart"></canvas></div>
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="seasonParticipantsChart"></canvas></div>
+        <div class="panel chart-panel bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="seasonKillsChart"></canvas></div>
+        <div class="panel chart-panel bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="seasonDamageChart"></canvas></div>
+        <div class="panel chart-panel bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="seasonDmgPerRoundLifetimeChart"></canvas></div>
+        <div class="panel chart-panel bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="seasonDmgPerRoundModeChart"></canvas></div>
+        <div class="panel chart-panel bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="seasonDmgPerMinuteLifetimeChart"></canvas></div>
+        <div class="panel chart-panel bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="seasonDmgPerMinuteModeChart"></canvas></div>
+        <div class="panel chart-panel bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="seasonKDChart"></canvas></div>
+        <div class="panel chart-panel bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="seasonTimeSurvivedChart"></canvas></div>
+        <div class="panel chart-panel bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="seasonWinsChart"></canvas></div>
+        <div class="panel chart-panel bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="seasonRoundsChart"></canvas></div>
+        <div class="panel chart-panel bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="seasonHSKillsChart"></canvas></div>
+        <div class="panel chart-panel bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="seasonTop10sChart"></canvas></div>
+        <div class="panel chart-panel bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="seasonParticipantsChart"></canvas></div>
     </div>
 </main>
 
@@ -147,7 +150,7 @@
         const c = new Chart(document.getElementById(id), {
             type: 'line',
             data: {labels: sLabels, datasets},
-            options: {responsive: true, plugins: {title: {display: true, text: title, color: '#e5e7eb'}},
+            options: {responsive: true, maintainAspectRatio: false, plugins: {title: {display: true, text: title, color: '#e5e7eb'}},
                 scales: {x: {ticks: xTickOpts}}}
         });
         c.getDatasetMeta(0).hidden = true;
@@ -261,7 +264,7 @@
             borderColor: 'rgba(56,189,248,1)',
             borderWidth: 1
         }]},
-        options: {responsive: true, scales: {y: {ticks: {stepSize: 1}}, x: {ticks: xTickOpts}},
+        options: {responsive: true, maintainAspectRatio: false, scales: {y: {ticks: {stepSize: 1}}, x: {ticks: xTickOpts}},
             plugins: {title: {display: true, text: 'Participants with Season Stats per Match', color: '#e5e7eb'}}}
     });
 </script>

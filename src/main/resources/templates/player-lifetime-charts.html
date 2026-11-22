@@ -3,8 +3,10 @@
 >
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="'Pubgity - ' + ${player.playerName} + ' · Lifetime Charts'">Lifetime Charts</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" th:href="@{/css/app.css}" href="/css/app.css">
     <script th:replace="~{fragments/timestamps :: script}"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 </head>
@@ -12,13 +14,14 @@
 
 <div th:replace="~{fragments/nav :: nav}"></div>
 
-<main class="max-w-screen-xl mx-auto px-4 py-8 space-y-6">
-    <div class="flex items-center justify-between">
+<main id="main-content" class="max-w-screen-xl mx-auto px-4 py-8 space-y-6">
+    <div class="page-heading mobile-stack flex items-center justify-between">
         <div>
             <a th:href="@{/players/{id}(id=${player.accountId})}"
                class="inline-flex items-center gap-1 text-gray-400 hover:text-gray-200 text-sm mb-2 transition-colors">
                 ← Back to <span th:text="${player.playerName}" class="text-gray-200"></span>
             </a>
+            <p class="eyebrow">Performance over time</p>
             <h1 class="text-2xl font-bold text-white">
                 Lifetime Charts
                 <span class="text-gray-400 font-normal text-lg ml-2" th:text="${player.playerName}"></span>
@@ -28,7 +31,7 @@
             </p>
         </div>
         <a th:href="@{/players/{id}/charts/season(id=${player.accountId})}"
-           class="px-3 py-2 bg-violet-700 hover:bg-violet-600 text-white text-sm rounded transition-colors">
+           class="action px-3 py-2 bg-violet-700 hover:bg-violet-600 text-white text-sm rounded transition-colors">
             Season Charts →
         </a>
     </div>
@@ -40,27 +43,27 @@
     </div>
 
     <div th:if="${#lists.isEmpty(perMatchStats) and !player.isPrivacyProtected}"
-         class="bg-gray-800 border border-gray-700 rounded-lg px-5 py-8 text-center text-gray-500">
+         class="panel bg-gray-800 border border-gray-700 rounded-lg px-5 py-8 text-center text-gray-500">
         No per-match stats available yet. Load some matches first.
     </div>
 
     <div th:if="${!#lists.isEmpty(perMatchStats) and !player.isPrivacyProtected}" class="space-y-6">
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchKillsChart"></canvas></div>
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchDamageChart"></canvas></div>
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchDmgPerRoundLifetimeChart"></canvas></div>
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchDmgPerRoundModeChart"></canvas></div>
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchDmgPerMinuteLifetimeChart"></canvas></div>
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchDmgPerMinuteModeChart"></canvas></div>
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchKDChart"></canvas></div>
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchTimeSurvivedChart"></canvas></div>
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchWinsChart"></canvas></div>
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchRoundsChart"></canvas></div>
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchHSKillsChart"></canvas></div>
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchTop10sChart"></canvas></div>
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchBestRankChart"></canvas></div>
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchRankedCountChart"></canvas></div>
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchParticipantsChart"></canvas></div>
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchBotsChart"></canvas></div>
+        <div class="panel chart-panel bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchKillsChart"></canvas></div>
+        <div class="panel chart-panel bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchDamageChart"></canvas></div>
+        <div class="panel chart-panel bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchDmgPerRoundLifetimeChart"></canvas></div>
+        <div class="panel chart-panel bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchDmgPerRoundModeChart"></canvas></div>
+        <div class="panel chart-panel bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchDmgPerMinuteLifetimeChart"></canvas></div>
+        <div class="panel chart-panel bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchDmgPerMinuteModeChart"></canvas></div>
+        <div class="panel chart-panel bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchKDChart"></canvas></div>
+        <div class="panel chart-panel bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchTimeSurvivedChart"></canvas></div>
+        <div class="panel chart-panel bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchWinsChart"></canvas></div>
+        <div class="panel chart-panel bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchRoundsChart"></canvas></div>
+        <div class="panel chart-panel bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchHSKillsChart"></canvas></div>
+        <div class="panel chart-panel bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchTop10sChart"></canvas></div>
+        <div class="panel chart-panel bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchBestRankChart"></canvas></div>
+        <div class="panel chart-panel bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchRankedCountChart"></canvas></div>
+        <div class="panel chart-panel bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchParticipantsChart"></canvas></div>
+        <div class="panel chart-panel bg-gray-800 border border-gray-700 rounded-lg p-5"><canvas id="matchBotsChart"></canvas></div>
     </div>
 </main>
 
@@ -158,7 +161,7 @@
         return new Chart(document.getElementById(id), {
             type: 'line',
             data: {labels, datasets},
-            options: {responsive: true, plugins: {title: {display: true, text: title, color: '#e5e7eb'}},
+            options: {responsive: true, maintainAspectRatio: false, plugins: {title: {display: true, text: title, color: '#e5e7eb'}},
                 scales: {x: {ticks: xTickOpts}}}
         });
     }
@@ -166,7 +169,7 @@
         return new Chart(document.getElementById(id), {
             type: 'bar',
             data: {labels, datasets},
-            options: {responsive: true, scales: {y: {ticks: {stepSize: 1}}, x: {ticks: xTickOpts}},
+            options: {responsive: true, maintainAspectRatio: false, scales: {y: {ticks: {stepSize: 1}}, x: {ticks: xTickOpts}},
                 plugins: {title: {display: true, text: title, color: '#e5e7eb'}}}
         });
     }

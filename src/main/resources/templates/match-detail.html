@@ -3,8 +3,10 @@
 >
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="'Pubgity - Match ' + ${match.matchId}">Match Detail</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" th:href="@{/css/app.css}" href="/css/app.css">
     <script th:replace="~{fragments/timestamps :: script}"></script>
     <style>
         th.sortable { cursor: pointer; user-select: none; }
@@ -19,14 +21,16 @@
 
 <div th:replace="~{fragments/nav :: nav}"></div>
 
-<main class="max-w-screen-2xl mx-auto px-4 py-8">
+<main id="main-content" class="max-w-screen-2xl mx-auto px-4 py-8">
     <a th:href="@{/players/{id}(id=${player.accountId})}"
        class="inline-flex items-center gap-1 text-gray-400 hover:text-gray-200 text-sm mb-6 transition-colors">
         ← Back to <span th:text="${player.playerName}" class="text-gray-200"></span>
     </a>
 
-    <h1 class="text-2xl font-bold text-white mb-2">Match Detail</h1>
-    <div class="text-xs text-gray-500 space-y-0.5 mb-6">
+    <div class="page-heading mb-6">
+        <p class="eyebrow">Match report</p>
+        <h1 class="text-2xl font-bold text-white mb-2">Match Detail</h1>
+        <div class="text-xs text-gray-500 space-y-0.5">
         <p><span class="text-gray-400">Match ID:</span> <span class="font-mono" th:text="${match.matchId}"></span></p>
         <p><span class="text-gray-400">Date:</span>
             <time th:replace="~{fragments/timestamps :: timestamp(${match.createdAt}, false)}"></time>
@@ -43,6 +47,7 @@
             &nbsp;·&nbsp;
             <span th:text="${match.botCount}"></span> bots
         </p>
+        </div>
     </div>
 
     <p th:if="${#lists.isEmpty(participants)}" class="text-gray-500 text-sm">
@@ -50,16 +55,17 @@
     </p>
 
     <div th:if="${!#lists.isEmpty(participants)}"
-         class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+         class="panel bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
         <div class="px-3 py-2 border-b border-gray-700 flex items-center gap-3">
             <input type="text" id="player-filter" placeholder="Filter by player name…"
+                   aria-label="Filter participants by player name"
                    oninput="filterParticipants(this)"
                    class="bg-gray-700 border border-gray-600 text-gray-100 rounded px-3 py-1.5 text-xs
                           focus:outline-none focus:border-blue-500 placeholder-gray-500 w-60">
             <span id="filter-count" class="text-xs text-gray-500"></span>
         </div>
-        <div class="overflow-x-auto">
-            <div class="max-h-[75vh] overflow-y-auto">
+        <p class="table-hint">Scroll sideways to see all columns →</p>
+        <div class="overflow-auto max-h-[75vh]" tabindex="0" role="region" aria-label="Participants, scroll horizontally for more columns">
                 <table id="participants-table" class="w-full text-xs whitespace-nowrap">
                     <thead class="sticky top-0 z-10 bg-gray-700 text-gray-300 uppercase tracking-wider">
                     <tr>
@@ -125,7 +131,6 @@
                     </tr>
                     </tbody>
                 </table>
-            </div>
         </div>
     </div>
 </main>
@@ -174,13 +179,25 @@
             var headers = Array.from(thead.querySelectorAll('th'));
             headers.forEach(function (th, idx) {
                 if (!th.classList.contains('sortable')) return;
+                th.tabIndex = 0;
+                th.setAttribute('aria-sort', 'none');
+                th.addEventListener('keydown', function (event) {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        th.click();
+                    }
+                });
                 th.addEventListener('click', function () {
                     var type = th.getAttribute('data-sort-type') || 'string';
                     var currentlyAsc = th.classList.contains('sorted-asc');
-                    headers.forEach(function (h) { h.classList.remove('sorted-asc', 'sorted-desc', 'sorted'); });
+                    headers.forEach(function (h) {
+                        h.classList.remove('sorted-asc', 'sorted-desc', 'sorted');
+                        h.setAttribute('aria-sort', 'none');
+                    });
                     th.classList.add('sorted');
                     var newAsc = !currentlyAsc;
                     th.classList.add(newAsc ? 'sorted-asc' : 'sorted-desc');
+                    th.setAttribute('aria-sort', newAsc ? 'ascending' : 'descending');
                     var rows = Array.from(tbody.querySelectorAll('tr'));
                     var mapped = rows.map(function (row, i) {
                         var raw = getCellValue(row, idx);

@@ -3,20 +3,23 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="'Pubgity - ' + ${player.playerName}">Player Detail</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" th:href="@{/css/app.css}" href="/css/app.css">
     <script th:replace="~{fragments/timestamps :: script}"></script>
 </head>
 <body class="bg-gray-950 text-gray-100 min-h-screen">
 
 <div th:replace="~{fragments/nav :: nav}"></div>
 
-<main class="max-w-screen-xl mx-auto px-4 py-8 space-y-8">
-    <div>
+<main id="main-content" class="max-w-screen-xl mx-auto px-4 py-8 space-y-8">
+    <div class="page-heading">
         <a href="/players" class="inline-flex items-center gap-1 text-gray-400 hover:text-gray-200 text-sm mb-4 transition-colors">
             ← Back to players
         </a>
-        <h1 class="text-3xl font-bold text-white flex items-center gap-3">
+        <p class="eyebrow">Player profile</p>
+        <h1 class="text-3xl font-bold text-white flex flex-wrap items-center gap-3">
             <span th:text="${player.playerName}">Player Name</span>
             <span th:if="${player.isPrivacyProtected}"
                   class="text-sm px-2.5 py-1 bg-amber-900/60 text-amber-300 rounded-full font-normal">
@@ -34,7 +37,7 @@
 
     <!-- Privacy protected notice -->
     <div th:if="${player.isPrivacyProtected}"
-         class="bg-amber-950/40 border border-amber-700/50 text-amber-300 rounded-lg px-5 py-4 text-sm flex items-center justify-between gap-4">
+         class="mobile-stack bg-amber-950/40 border border-amber-700/50 text-amber-300 rounded-lg px-5 py-4 text-sm flex items-center justify-between gap-4">
         <span>
             🔒 This player's PUBG profile is privacy protected. Lifetime and season stats cannot be
             fetched from the PUBG API for this account.
@@ -51,7 +54,7 @@
 
     <!-- No stats warning -->
     <div th:if="${latestStats == null and !player.isPrivacyProtected}"
-         class="bg-amber-950/40 border border-amber-700/50 text-amber-300 rounded-lg px-5 py-4 text-sm flex items-center justify-between gap-4">
+         class="mobile-stack bg-amber-950/40 border border-amber-700/50 text-amber-300 rounded-lg px-5 py-4 text-sm flex items-center justify-between gap-4">
         <span>
             No lifetime stats available yet.
             <a sec:authorize="hasRole('ADMIN')" href="/jobs" class="underline hover:text-amber-200"> Run an update job from the jobs panel</a>
@@ -70,11 +73,11 @@
     <!-- Aggregated summary cards -->
     <div th:if="${playerAggregated != null or playerSeasonAggregated != null}" class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Lifetime aggregated -->
-        <div th:if="${playerAggregated != null}" class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
-            <div class="px-5 py-3 border-b border-gray-700 flex justify-between items-center">
+        <div th:if="${playerAggregated != null}" class="panel bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+            <div class="mobile-stack px-5 py-3 border-b border-gray-700 flex justify-between items-center">
                 <h2 class="font-semibold text-gray-100">Lifetime — All Modes</h2>
                 <a th:href="@{/players/{id}/charts/lifetime(id=${player.accountId})}"
-                   class="text-xs px-3 py-1.5 bg-indigo-700 hover:bg-indigo-600 text-white rounded transition-colors">
+                   class="action text-xs px-3 py-1.5 bg-indigo-700 hover:bg-indigo-600 text-white rounded transition-colors">
                     View Charts →
                 </a>
             </div>
@@ -125,13 +128,13 @@
         </div>
 
         <!-- Season aggregated -->
-        <div th:if="${playerSeasonAggregated != null}" class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
-            <div class="px-5 py-3 border-b border-gray-700 flex justify-between items-center">
+        <div th:if="${playerSeasonAggregated != null}" class="panel bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+            <div class="mobile-stack px-5 py-3 border-b border-gray-700 flex justify-between items-center">
                 <h2 class="font-semibold text-gray-100">
                     Season <span class="text-gray-400 text-sm" th:text="${latestSeasonId}"></span> — All Modes
                 </h2>
                 <a th:href="@{/players/{id}/charts/season(id=${player.accountId})}"
-                   class="text-xs px-3 py-1.5 bg-violet-700 hover:bg-violet-600 text-white rounded transition-colors">
+                   class="action text-xs px-3 py-1.5 bg-violet-700 hover:bg-violet-600 text-white rounded transition-colors">
                     View Charts →
                 </a>
             </div>
@@ -179,11 +182,12 @@
     </div>
 
     <!-- Lifetime Stats by Game Mode -->
-    <div th:if="${latestStats != null}" class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+    <div th:if="${latestStats != null}" class="panel bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
         <div class="px-5 py-3 border-b border-gray-700">
             <h2 class="font-semibold text-gray-100">Lifetime Stats by Game Mode</h2>
         </div>
-        <div class="overflow-x-auto">
+        <p class="table-hint">Scroll sideways to see all game modes →</p>
+        <div class="overflow-x-auto" tabindex="0" role="region" aria-label="Lifetime statistics by game mode, scroll horizontally">
             <table class="w-full text-sm whitespace-nowrap">
                 <thead class="bg-gray-700 text-gray-300 text-xs uppercase tracking-wider">
                 <tr>
@@ -266,14 +270,15 @@
     </div>
 
     <!-- Season Stats by Game Mode -->
-    <div th:if="${latestSeasonStats != null}" class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+    <div th:if="${latestSeasonStats != null}" class="panel bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
         <div class="px-5 py-3 border-b border-gray-700">
             <h2 class="font-semibold text-gray-100">
                 Season Stats by Game Mode
                 <span class="text-gray-400 text-sm font-normal ml-2" th:text="${latestSeasonId}"></span>
             </h2>
         </div>
-        <div class="overflow-x-auto">
+        <p class="table-hint">Scroll sideways to see all game modes →</p>
+        <div class="overflow-x-auto" tabindex="0" role="region" aria-label="Season statistics by game mode, scroll horizontally">
             <table class="w-full text-sm whitespace-nowrap">
                 <thead class="bg-gray-700 text-gray-300 text-xs uppercase tracking-wider">
                 <tr>
@@ -356,12 +361,13 @@
     </div>
 
     <!-- Matches List -->
-    <div class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+    <div class="panel bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
         <div class="px-5 py-3 border-b border-gray-700">
             <h2 class="font-semibold text-gray-100">Matches</h2>
         </div>
         <div th:if="${#lists.isEmpty(matches)}" class="px-5 py-4 text-gray-500 text-sm">No matches loaded yet.</div>
-        <div th:if="${!#lists.isEmpty(matches)}" class="overflow-auto max-h-[500px]">
+        <p th:if="${!#lists.isEmpty(matches)}" class="table-hint">Scroll sideways to see all columns →</p>
+        <div th:if="${!#lists.isEmpty(matches)}" class="overflow-auto max-h-[500px]" tabindex="0" role="region" aria-label="Matches, scroll horizontally for more columns">
             <table class="min-w-full text-sm whitespace-nowrap">
                 <thead class="sticky top-0 z-10 bg-gray-700 text-gray-300 text-xs uppercase tracking-wider">
                 <tr>
