@@ -3,6 +3,7 @@
 >
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Pubgity - Jobs</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script th:replace="~{fragments/timestamps :: script}"></script>
@@ -14,46 +15,42 @@
         .sticky-col { box-shadow: -4px 0 8px rgba(0,0,0,0.6); }
     </style>
 </head>
-<body class="bg-gray-950 text-gray-100 min-h-screen">
+<body class="min-h-screen bg-[#080e19] bg-[radial-gradient(ellipse_at_50%_-20%,#193657_0%,#0b1321_45%,#080e19_100%)] bg-fixed font-sans text-gray-100 [color-scheme:dark] [&_*:focus-visible]:!outline [&_*:focus-visible]:!outline-2 [&_*:focus-visible]:!outline-offset-[3px] [&_*:focus-visible]:!outline-blue-300">
 
 <div th:replace="~{fragments/nav :: nav}"></div>
 
-<main class="max-w-screen-2xl mx-auto px-4 py-8 space-y-8">
-    <h1 class="text-3xl font-bold text-white">Pubgity Jobs</h1>
+<main id="main-content" class="max-w-screen-2xl mx-auto px-4 pt-6 pb-12 md:pt-10 md:pb-16 space-y-8 [overflow-wrap:anywhere] [&_h1]:tracking-tight [&_h2]:tracking-tight">
+    <div class="rounded-2xl border border-[#2a3b53] bg-[linear-gradient(115deg,rgba(37,99,235,.18),rgba(21,31,48,.9)_60%)] p-5 md:p-6"><p class="mb-2 text-xs font-bold uppercase tracking-[.12em] text-blue-300">Import management</p><h1 class="text-3xl font-bold text-white">Pubgity Jobs</h1></div>
 
     <!-- Flash error message -->
     <div th:if="${error}" class="bg-red-900/50 border border-red-700 text-red-300 rounded-lg px-5 py-3 text-sm"
          th:text="${error}"></div>
 
     <!-- Add Player (ADMIN only) -->
-    <div th:if="${canManagePlayers}" class="bg-gray-800 border border-gray-700 rounded-lg p-5">
+    <div th:if="${canManagePlayers}" class="bg-[#151f30] border-[#2a3b53] rounded-[.85rem] shadow-[0_12px_30px_rgba(0,0,0,.12)] [&>div.border-b]:border-[#2a3b53] border p-5">
         <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Add Player to Watchlist</h2>
-        <form method="post" th:action="@{/jobs/players/add}" class="flex gap-2">
-            <input type="text" name="playerName" placeholder="Player name" required
-                   class="bg-gray-700 border border-gray-600 text-gray-100 rounded px-3 py-2 text-sm
-                          focus:outline-none focus:border-blue-500 placeholder-gray-500 w-64">
+        <form method="post" th:action="@{/jobs/players/add}" class="flex-wrap md:flex-nowrap flex gap-2">
+            <input type="text" name="playerName" placeholder="Player name" aria-label="Player name" required
+                   class="max-md:w-full max-md:basis-full min-w-0 min-h-[44px] md:min-h-0 bg-gray-700 border border-gray-600 text-gray-100 rounded px-3 py-2 text-base md:text-sm focus:outline-none focus:border-blue-500 placeholder-[#9aabc0] w-64">
             <button type="submit"
-                    class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm rounded transition-colors">
+                    class="min-h-[44px] md:min-h-0 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm rounded transition-colors">
                 Add Player
             </button>
         </form>
     </div>
 
     <!-- Match Download Job Queue -->
-    <div class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+    <div class="bg-[#151f30] border-[#2a3b53] rounded-[.85rem] shadow-[0_12px_30px_rgba(0,0,0,.12)] [&>div.border-b]:border-[#2a3b53] border overflow-hidden">
         <div class="px-5 py-4 border-b border-gray-700 flex flex-wrap items-center justify-between gap-3">
             <div>
                 <h2 class="font-semibold text-gray-100">Match Download Job Queue</h2>
-                <p class="text-xs text-gray-500 mt-0.5">Multiple jobs can exist for one match — if match exists in DB, job will fail on startup</p>
+                <p class="text-sm md:text-xs text-[#9aabc0] mt-0.5">Multiple jobs can exist for one match — if match exists in DB, job will fail on startup</p>
             </div>
             <div class="flex flex-wrap items-center gap-4">
-                <input type="text" id="match-jobs-filter" placeholder="Filter…"
-                       oninput="applyFilters('match-jobs-table')"
-                       class="bg-gray-700 border border-gray-600 text-gray-100 rounded px-3 py-1.5 text-xs
-                              focus:outline-none focus:border-blue-500 placeholder-gray-500 w-44">
-                <select id="match-jobs-status" onchange="applyFilters('match-jobs-table')"
-                        class="bg-gray-700 border border-gray-600 text-gray-100 rounded px-2 py-1.5 text-xs
-                               focus:outline-none focus:border-blue-500">
+                <input type="text" id="match-jobs-filter" placeholder="Filter…" aria-label="Filter match jobs"
+                       class="min-w-0 min-h-[44px] md:min-h-0 bg-gray-700 border border-gray-600 text-gray-100 rounded px-3 py-1.5 text-base md:text-xs focus:outline-none focus:border-blue-500 placeholder-[#9aabc0] w-44">
+                <select id="match-jobs-status" aria-label="Match job status"
+                        class="min-w-0 min-h-[44px] md:min-h-0 bg-gray-700 border border-gray-600 text-gray-100 rounded px-2 py-1.5 text-base md:text-xs focus:outline-none focus:border-blue-500">
                     <option value="">All statuses</option>
                     <option value="QUEUED">Queued</option>
                     <option value="RUNNING">Running</option>
@@ -62,20 +59,21 @@
                     <option value="CANCELLED">Cancelled</option>
                     <option value="FAILED">Failed</option>
                 </select>
-                <label class="flex items-center gap-2 text-xs text-gray-400 cursor-pointer select-none">
-                    <input type="checkbox" id="retryable-match" onchange="applyFilters('match-jobs-table')"
+                <label class="flex items-center gap-2 text-sm md:text-xs text-gray-400 cursor-pointer select-none">
+                    <input type="checkbox" id="retryable-match"
                            class="w-3.5 h-3.5 accent-blue-500">
                     Retryable only
                 </label>
-                <label class="flex items-center gap-2 text-xs text-gray-400 cursor-pointer select-none">
-                    <input type="checkbox" id="ts-match" onchange="toggleTs('match-jobs-table','ts-match')"
+                <label class="flex items-center gap-2 text-sm md:text-xs text-gray-400 cursor-pointer select-none">
+                    <input type="checkbox" id="ts-match"
                            class="w-3.5 h-3.5 accent-blue-500">
                     Show timestamps
                 </label>
             </div>
         </div>
-        <div class="overflow-auto max-h-[500px]">
-            <table id="match-jobs-table" class="min-w-full text-xs ts-hidden">
+        <p class="block px-4 py-2 text-sm text-[#a4b4c9] md:hidden">Scroll sideways to see all columns →</p>
+        <div class="overflow-auto max-h-[500px]" tabindex="0" role="region" aria-label="Match jobs, scroll horizontally for more columns">
+            <table id="match-jobs-table" class="min-w-full text-sm md:text-xs ts-hidden">
                     <thead class="sticky top-0 z-10 bg-gray-700 text-gray-300 uppercase tracking-wider">
                     <tr>
                         <th class="px-3 py-2 text-left font-semibold">Player</th>
@@ -101,14 +99,14 @@
                         <td class="px-3 py-2 text-gray-200" th:text="${job.playerName}"></td>
                         <td class="px-3 py-2">
                             <div class="flex items-center gap-1.5 max-w-[220px]">
-                                <span class="truncate-cell text-gray-400 font-mono" onclick="toggleTruncate(this)"
+                                <span class="truncate-cell text-gray-400 font-mono"
                                       th:text="${job.matchId}" th:title="${job.matchId}"></span>
-                                <button type="button" class="copy-btn text-gray-500 hover:text-gray-200 shrink-0"
-                                        th:attr="data-copy=${job.matchId}" onclick="copyValue(this)" title="Copy">⧉</button>
+                                <button type="button" class="min-h-[44px] md:min-h-0 copy-btn text-[#9aabc0] hover:text-gray-200 shrink-0"
+                                        th:attr="data-copy=${job.matchId}" title="Copy">⧉</button>
                             </div>
                         </td>
                         <td class="px-3 py-2">
-                            <span class="px-2 py-0.5 rounded-full text-xs font-semibold"
+                            <span class="px-2 py-0.5 rounded-full text-sm md:text-xs font-semibold"
                                   th:classappend="${job.status.name() == 'QUEUED'    ? 'bg-gray-600 text-gray-200' :
                                                   (job.status.name() == 'RUNNING'   ? 'bg-blue-600 text-white' :
                                                   (job.status.name() == 'COMPLETED' ? 'bg-green-700 text-white' :
@@ -118,37 +116,37 @@
                                   th:text="${job.status}"></span>
                         </td>
                         <td class="px-3 py-2 text-gray-400" th:text="${job.progress}"></td>
-                        <td class="px-3 py-2 text-gray-500 ts-col">
+                        <td class="px-3 py-2 text-[#9aabc0] ts-col">
                             <time th:replace="~{fragments/timestamps :: timestamp(${job.createdAt}, false)}"></time>
                         </td>
-                        <td class="px-3 py-2 text-gray-500 ts-col">
+                        <td class="px-3 py-2 text-[#9aabc0] ts-col">
                             <time th:replace="~{fragments/timestamps :: timestamp(${job.startedAt}, false)}"></time>
                         </td>
-                        <td class="px-3 py-2 text-gray-500 ts-col">
+                        <td class="px-3 py-2 text-[#9aabc0] ts-col">
                             <time th:replace="~{fragments/timestamps :: timestamp(${job.completedAt}, false)}"></time>
                         </td>
                         <td class="px-3 py-2">
                             <div class="flex items-center gap-1.5 max-w-[220px]">
-                                <span class="truncate-cell text-red-400" onclick="toggleTruncate(this)"
+                                <span class="truncate-cell text-red-400"
                                       th:text="${job.errorMessage}" th:title="${job.errorMessage}"></span>
                                 <button type="button" th:if="${job.errorMessage != null}"
-                                        class="copy-btn text-gray-500 hover:text-gray-200 shrink-0"
-                                        th:attr="data-copy=${job.errorMessage}" onclick="copyValue(this)" title="Copy">⧉</button>
+                                        class="min-h-[44px] md:min-h-0 copy-btn text-[#9aabc0] hover:text-gray-200 shrink-0"
+                                        th:attr="data-copy=${job.errorMessage}" title="Copy">⧉</button>
                             </div>
                         </td>
                         <td class="px-3 py-2 sticky right-0 bg-gray-900 sticky-col">
                             <div class="flex gap-1 flex-nowrap">
                                 <form th:if="${job.status.name() == 'QUEUED' || job.status.name() == 'RUNNING'}"
                                       method="post" th:action="@{/jobs/{id}/cancel(id=${job.id})}">
-                                    <button type="submit" onclick="return confirm('Cancel this job?')"
-                                            class="px-2 py-1 bg-amber-600 hover:bg-amber-500 text-white text-xs rounded transition-colors whitespace-nowrap">
+                                    <button type="submit" data-confirm="Cancel this job?"
+                                            class="min-h-[44px] md:min-h-0 px-2 py-1 bg-amber-600 hover:bg-amber-500 text-white text-sm md:text-xs rounded transition-colors whitespace-nowrap">
                                         Cancel
                                     </button>
                                 </form>
                                 <form th:if="${(job.status.name() == 'CANCELLED' || job.status.name() == 'FAILED') && job.retried == false}"
                                       method="post" th:action="@{/jobs/{id}/retry(id=${job.id})}">
                                     <button type="submit"
-                                            class="px-2 py-1 bg-gray-600 hover:bg-gray-500 text-white text-xs rounded transition-colors whitespace-nowrap">
+                                            class="min-h-[44px] md:min-h-0 px-2 py-1 bg-gray-600 hover:bg-gray-500 text-white text-sm md:text-xs rounded transition-colors whitespace-nowrap">
                                         Retry
                                     </button>
                                 </form>
@@ -158,24 +156,21 @@
                     </tbody>
                 </table>
             </div>
-        <p th:if="${#lists.isEmpty(fetchMatchStatsJobs)}" class="px-5 py-4 text-gray-500 text-sm">No jobs yet.</p>
+        <p th:if="${#lists.isEmpty(fetchMatchStatsJobs)}" class="px-5 py-4 text-[#9aabc0] text-sm">No jobs yet.</p>
     </div>
 
     <!-- Fork Job Queue -->
-    <div class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+    <div class="bg-[#151f30] border-[#2a3b53] rounded-[.85rem] shadow-[0_12px_30px_rgba(0,0,0,.12)] [&>div.border-b]:border-[#2a3b53] border overflow-hidden">
         <div class="px-5 py-4 border-b border-gray-700 flex flex-wrap items-center justify-between gap-3">
             <div>
                 <h2 class="font-semibold text-gray-100">Fork Job Queue</h2>
-                <p class="text-xs text-gray-500 mt-0.5">Takes N recent matches, then filters out existing ones</p>
+                <p class="text-sm md:text-xs text-[#9aabc0] mt-0.5">Takes N recent matches, then filters out existing ones</p>
             </div>
             <div class="flex flex-wrap items-center gap-4">
-                <input type="text" id="fork-jobs-filter" placeholder="Filter…"
-                       oninput="applyFilters('fork-jobs-table')"
-                       class="bg-gray-700 border border-gray-600 text-gray-100 rounded px-3 py-1.5 text-xs
-                              focus:outline-none focus:border-blue-500 placeholder-gray-500 w-44">
-                <select id="fork-jobs-status" onchange="applyFilters('fork-jobs-table')"
-                        class="bg-gray-700 border border-gray-600 text-gray-100 rounded px-2 py-1.5 text-xs
-                               focus:outline-none focus:border-blue-500">
+                <input type="text" id="fork-jobs-filter" placeholder="Filter…" aria-label="Filter fork jobs"
+                       class="min-w-0 min-h-[44px] md:min-h-0 bg-gray-700 border border-gray-600 text-gray-100 rounded px-3 py-1.5 text-base md:text-xs focus:outline-none focus:border-blue-500 placeholder-[#9aabc0] w-44">
+                <select id="fork-jobs-status" aria-label="Fork job status"
+                        class="min-w-0 min-h-[44px] md:min-h-0 bg-gray-700 border border-gray-600 text-gray-100 rounded px-2 py-1.5 text-base md:text-xs focus:outline-none focus:border-blue-500">
                     <option value="">All statuses</option>
                     <option value="QUEUED">Queued</option>
                     <option value="RUNNING">Running</option>
@@ -184,20 +179,21 @@
                     <option value="CANCELLED">Cancelled</option>
                     <option value="FAILED">Failed</option>
                 </select>
-                <label class="flex items-center gap-2 text-xs text-gray-400 cursor-pointer select-none">
-                    <input type="checkbox" id="retryable-fork" onchange="applyFilters('fork-jobs-table')"
+                <label class="flex items-center gap-2 text-sm md:text-xs text-gray-400 cursor-pointer select-none">
+                    <input type="checkbox" id="retryable-fork"
                            class="w-3.5 h-3.5 accent-blue-500">
                     Retryable only
                 </label>
-                <label class="flex items-center gap-2 text-xs text-gray-400 cursor-pointer select-none">
-                    <input type="checkbox" id="ts-fork" onchange="toggleTs('fork-jobs-table','ts-fork')"
+                <label class="flex items-center gap-2 text-sm md:text-xs text-gray-400 cursor-pointer select-none">
+                    <input type="checkbox" id="ts-fork"
                            class="w-3.5 h-3.5 accent-blue-500">
                     Show timestamps
                 </label>
             </div>
         </div>
-        <div class="overflow-auto max-h-[500px]">
-            <table id="fork-jobs-table" class="min-w-full text-xs ts-hidden">
+        <p class="block px-4 py-2 text-sm text-[#a4b4c9] md:hidden">Scroll sideways to see all columns →</p>
+        <div class="overflow-auto max-h-[500px]" tabindex="0" role="region" aria-label="Fork jobs, scroll horizontally for more columns">
+            <table id="fork-jobs-table" class="min-w-full text-sm md:text-xs ts-hidden">
                     <thead class="sticky top-0 z-10 bg-gray-700 text-gray-300 uppercase tracking-wider">
                     <tr>
                         <th class="px-3 py-2 text-left font-semibold">Player</th>
@@ -223,7 +219,7 @@
                         <td class="px-3 py-2 text-gray-200" th:text="${job.playerName}"></td>
                         <td class="px-3 py-2 text-gray-300" th:text="${job.matchCount}"></td>
                         <td class="px-3 py-2">
-                            <span class="px-2 py-0.5 rounded-full text-xs font-semibold"
+                            <span class="px-2 py-0.5 rounded-full text-sm md:text-xs font-semibold"
                                   th:classappend="${job.status.name() == 'QUEUED'    ? 'bg-gray-600 text-gray-200' :
                                                   (job.status.name() == 'RUNNING'   ? 'bg-blue-600 text-white' :
                                                   (job.status.name() == 'COMPLETED' ? 'bg-green-700 text-white' :
@@ -233,29 +229,29 @@
                                   th:text="${job.status}"></span>
                         </td>
                         <td class="px-3 py-2 text-gray-400" th:text="${job.progress}"></td>
-                        <td class="px-3 py-2 text-gray-500 ts-col">
+                        <td class="px-3 py-2 text-[#9aabc0] ts-col">
                             <time th:replace="~{fragments/timestamps :: timestamp(${job.createdAt}, false)}"></time>
                         </td>
-                        <td class="px-3 py-2 text-gray-500 ts-col">
+                        <td class="px-3 py-2 text-[#9aabc0] ts-col">
                             <time th:replace="~{fragments/timestamps :: timestamp(${job.startedAt}, false)}"></time>
                         </td>
-                        <td class="px-3 py-2 text-gray-500 ts-col">
+                        <td class="px-3 py-2 text-[#9aabc0] ts-col">
                             <time th:replace="~{fragments/timestamps :: timestamp(${job.completedAt}, false)}"></time>
                         </td>
                         <td class="px-3 py-2">
                             <div class="flex items-center gap-1.5 max-w-[220px]">
-                                <span class="truncate-cell text-red-400" onclick="toggleTruncate(this)"
+                                <span class="truncate-cell text-red-400"
                                       th:text="${job.errorMessage}" th:title="${job.errorMessage}"></span>
                                 <button type="button" th:if="${job.errorMessage != null}"
-                                        class="copy-btn text-gray-500 hover:text-gray-200 shrink-0"
-                                        th:attr="data-copy=${job.errorMessage}" onclick="copyValue(this)" title="Copy">⧉</button>
+                                        class="min-h-[44px] md:min-h-0 copy-btn text-[#9aabc0] hover:text-gray-200 shrink-0"
+                                        th:attr="data-copy=${job.errorMessage}" title="Copy">⧉</button>
                             </div>
                         </td>
                         <td class="px-3 py-2 sticky right-0 bg-gray-900 sticky-col">
                             <form th:if="${job.status.name() == 'QUEUED' || job.status.name() == 'RUNNING'}"
                                   method="post" th:action="@{/jobs/{id}/cancel(id=${job.id})}">
-                                <button type="submit" onclick="return confirm('Cancel this job?')"
-                                        class="px-2 py-1 bg-amber-600 hover:bg-amber-500 text-white text-xs rounded transition-colors whitespace-nowrap">
+                                <button type="submit" data-confirm="Cancel this job?"
+                                        class="min-h-[44px] md:min-h-0 px-2 py-1 bg-amber-600 hover:bg-amber-500 text-white text-sm md:text-xs rounded transition-colors whitespace-nowrap">
                                     Cancel
                                 </button>
                             </form>
@@ -264,27 +260,27 @@
                     </tbody>
                 </table>
             </div>
-        <p th:if="${#lists.isEmpty(fetchPlayerMatchesJobs)}" class="px-5 py-4 text-gray-500 text-sm">No jobs yet.</p>
+        <p th:if="${#lists.isEmpty(fetchPlayerMatchesJobs)}" class="px-5 py-4 text-[#9aabc0] text-sm">No jobs yet.</p>
     </div>
 
     <!-- Tracked Players -->
-    <div class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+    <div class="bg-[#151f30] border-[#2a3b53] rounded-[.85rem] shadow-[0_12px_30px_rgba(0,0,0,.12)] [&>div.border-b]:border-[#2a3b53] border overflow-hidden">
         <div class="px-5 py-4 border-b border-gray-700 flex flex-wrap items-center justify-between gap-3">
             <div>
                 <h2 class="font-semibold text-gray-100">Tracked Players</h2>
                 <p th:if="${moderatorMatchCountCap != null}"
                    th:classappend="${moderatorMatchCountCap == 0 ? 'text-red-400' : 'text-gray-500'}"
-                   class="text-xs mt-0.5">
+                   class="text-sm md:text-xs mt-0.5">
                     Queue slots remaining: <span th:text="${moderatorMatchCountCap}" class="font-semibold"></span>
                 </p>
             </div>
-            <input type="text" id="players-filter" placeholder="Filter…" oninput="filterTable(this,'players-table')"
-                   class="bg-gray-700 border border-gray-600 text-gray-100 rounded px-3 py-1.5 text-xs
-                          focus:outline-none focus:border-blue-500 placeholder-gray-500 w-44">
+            <input type="text" id="players-filter" placeholder="Filter…" aria-label="Filter tracked players"
+                   class="min-w-0 min-h-[44px] md:min-h-0 bg-gray-700 border border-gray-600 text-gray-100 rounded px-3 py-1.5 text-base md:text-xs focus:outline-none focus:border-blue-500 placeholder-[#9aabc0] w-44">
         </div>
-        <div class="overflow-auto max-h-[500px]">
+        <p class="block px-4 py-2 text-sm text-[#a4b4c9] md:hidden">Scroll sideways to see all columns →</p>
+        <div class="overflow-auto max-h-[500px]" tabindex="0" role="region" aria-label="Tracked players, scroll horizontally for more columns">
             <table id="players-table" class="min-w-full text-sm">
-                    <thead class="sticky top-0 z-10 bg-gray-700 text-gray-300 text-xs uppercase tracking-wider">
+                    <thead class="sticky top-0 z-10 bg-gray-700 text-gray-300 text-sm md:text-xs uppercase tracking-wider">
                     <tr>
                         <th class="px-4 py-2 text-left font-semibold">Name</th>
                         <th class="px-4 py-2 text-left font-semibold">Account ID</th>
@@ -299,12 +295,12 @@
                         <td class="px-4 py-2.5">
                             <span th:if="${player.accountId != null}"
                                   th:text="${player.accountId}"
-                                  class="text-gray-400 font-mono text-xs"></span>
+                                  class="text-gray-400 font-mono text-sm md:text-xs"></span>
                             <span th:if="${player.accountId == null}"
-                                  class="text-gray-600 text-xs italic">Not resolved</span>
+                                  class="text-[#869ab2] text-sm md:text-xs italic">Not resolved</span>
                         </td>
                         <td class="px-4 py-2.5">
-                            <span class="px-2 py-0.5 bg-gray-700 text-gray-300 rounded-full text-xs"
+                            <span class="px-2 py-0.5 bg-gray-700 text-gray-300 rounded-full text-sm md:text-xs"
                                   th:text="${player.matches.matchIds.size()}"></span>
                         </td>
                         <td class="px-4 py-2.5 sticky right-0 bg-gray-900 sticky-col">
@@ -316,18 +312,16 @@
                                            min="1"
                                            th:max="${moderatorMatchCountCap != null ? moderatorMatchCountCap : 100}"
                                            title="Last N matches"
-                                           class="w-14 bg-gray-700 border border-gray-600 text-gray-200 text-xs rounded px-2 py-1
-                                                  focus:outline-none focus:border-blue-500">
+                                           class="min-w-0 min-h-[44px] md:min-h-0 w-14 bg-gray-700 border border-gray-600 text-gray-200 text-base md:text-xs rounded px-2 py-1 focus:outline-none focus:border-blue-500">
                                     <button type="submit"
                                             th:disabled="${moderatorMatchCountCap != null and moderatorMatchCountCap == 0}"
-                                            class="px-2 py-1 bg-green-700 hover:bg-green-600 text-white text-xs rounded transition-colors whitespace-nowrap
-                                                   disabled:opacity-40 disabled:cursor-not-allowed">
+                                            class="min-h-[44px] md:min-h-0 px-2 py-1 bg-green-700 hover:bg-green-600 text-white text-sm md:text-xs rounded transition-colors whitespace-nowrap disabled:opacity-40 disabled:cursor-not-allowed">
                                         Update
                                     </button>
                                 </form>
                                  <form method="post" th:action="@{/jobs/players/{id}/remove(id=${player.id})}">
-                                    <button th:if="${canManagePlayers}" type="submit" onclick="return confirm('Remove this player?')"
-                                            class="px-2 py-1 bg-red-700 hover:bg-red-600 text-white text-xs rounded transition-colors whitespace-nowrap">
+                                    <button th:if="${canManagePlayers}" type="submit" data-confirm="Remove this player?"
+                                            class="min-h-[44px] md:min-h-0 px-2 py-1 bg-red-700 hover:bg-red-600 text-white text-sm md:text-xs rounded transition-colors whitespace-nowrap">
                                         Remove
                                     </button>
                                 </form>
@@ -337,98 +331,11 @@
                     </tbody>
                 </table>
             </div>
-        <p th:if="${#lists.isEmpty(players)}" class="px-5 py-4 text-gray-500 text-sm">No players tracked yet.</p>
+        <p th:if="${#lists.isEmpty(players)}" class="px-5 py-4 text-[#9aabc0] text-sm">No players tracked yet.</p>
     </div>
 </main>
 
-<script>
-    // ── Table filter ───────────────────────────────────────────
-    function getFilterIds(tableId) {
-        if (tableId === 'match-jobs-table') return { text: 'match-jobs-filter', status: 'match-jobs-status', retryable: 'retryable-match' };
-        if (tableId === 'fork-jobs-table')  return { text: 'fork-jobs-filter',  status: 'fork-jobs-status',  retryable: 'retryable-fork'  };
-        return null;
-    }
-
-    function applyFilters(tableId) {
-        const ids = getFilterIds(tableId);
-        const q        = ids ? (document.getElementById(ids.text)?.value.toLowerCase() ?? '')      : '';
-        const status   = ids ? (document.getElementById(ids.status)?.value ?? '')                   : '';
-        const retryOnly= ids ? (document.getElementById(ids.retryable)?.checked ?? false)           : false;
-
-        document.getElementById(tableId).querySelectorAll('tbody tr').forEach(row => {
-            const textMatch     = !q        || row.textContent.toLowerCase().includes(q);
-            const statusMatch   = !status   || row.dataset.status === status;
-            const retryMatch    = !retryOnly || row.dataset.retryable === 'true';
-            row.style.display   = textMatch && statusMatch && retryMatch ? '' : 'none';
-        });
-    }
-
-    // Legacy alias used by players table (no status/retryable controls there)
-    function filterTable(input, tableId) {
-        const q = input.value.toLowerCase();
-        document.getElementById(tableId).querySelectorAll('tbody tr').forEach(row => {
-            row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
-        });
-    }
-
-    // ── Timestamp column toggle with localStorage ──────────────
-    const TS_KEY = 'pubgity_show_timestamps';
-
-    function toggleTs(tableId, cbId) {
-        const checked = document.getElementById(cbId).checked;
-        const table   = document.getElementById(tableId);
-        table.classList.toggle('ts-hidden', !checked);
-        localStorage.setItem(TS_KEY, checked ? '1' : '0');
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        const show = localStorage.getItem(TS_KEY) === '1';
-        ['match-jobs-table', 'fork-jobs-table'].forEach(id => {
-            const table = document.getElementById(id);
-            if (table) table.classList.toggle('ts-hidden', !show);
-        });
-        ['ts-match', 'ts-fork'].forEach(id => {
-            const cb = document.getElementById(id);
-            if (cb) cb.checked = show;
-        });
-    });
-
-    function toggleTruncate(el) {
-        el.classList.toggle('expanded');
-    }
-
-    function copyValue(btn) {
-        const value = btn.getAttribute('data-copy');
-        if (!value) return;
-
-        const flash = () => {
-            const original = btn.textContent;
-            btn.textContent = '✓';
-            setTimeout(() => { btn.textContent = original; }, 1000);
-        };
-
-        if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(value).then(flash).catch(() => fallbackCopy(value, flash));
-        } else {
-            fallbackCopy(value, flash);
-        }
-    }
-
-    function fallbackCopy(value, onDone) {
-        const ta = document.createElement('textarea');
-        ta.value = value;
-        ta.style.position = 'fixed';
-        ta.style.opacity = '0';
-        document.body.appendChild(ta);
-        ta.focus();
-        ta.select();
-        try {
-            document.execCommand('copy');
-            onDone();
-        } finally {
-            document.body.removeChild(ta);
-        }
-    }
-</script>
+<script th:src="@{/js/jobs.js}" src="/js/jobs.js"></script>
+<script th:src="@{/js/confirm.js}" src="/js/confirm.js"></script>
 </body>
 </html>
