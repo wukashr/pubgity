@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/wukashr/pubgity/compare/v1.5.0...v1.5.1) (2026-11-23)
+
+
+### Bug Fixes
+
+* main page change ([d5ebf86](https://github.com/wukashr/pubgity/commit/d5ebf866a7193f67891f66615465a34a4764ec30))
+
 ## [1.5.0](https://github.com/wukashr/pubgity/compare/v1.4.0...v1.5.0) (2026-11-22)
 
 
